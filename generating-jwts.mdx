@@ -1,0 +1,38 @@
+---
+title: "Authenticating User Sessions"
+description: "Securing sessions and identifying end-users in production"
+---
+
+<Note>
+ 
+ **Only needed for production use**
+ 
+ A sample JWT is automatically included in the provided code snippet for development.
+</Note>
+
+### Why JWT?
+
+When a customer completes an import, [OneSchema will pass the data through to your system](https://docs.oneschema.co/edit/importing-validated-data). In order to know which customer the data belongs to, you must provide a JSON Web Token (or JWT) to identify the user. 
+
+This JWT should be securely generated on your server using your Client Secret each time a user performs an import. This prevents a malicious actor from uploading data while acting as another user. 
+
+You can [learn more about JWT here](https://jwt.io/introduction).
+
+### JWT setup
+
+The payload for the generated JWT must contain at least two fields: 
+
+* `iss` should be a string set to your Client ID
+* `user_id` field should be a string that will allow you to find the user that performed the import in your specified Webhook endpoint, e.g., a username, an email, or a UUID. The `user_id` is used for user-based historical mapping. Each user should be assigned a unique `user_id`; The same `user_id` should be encoded each time that user accesses the importer.
+
+OneSchema will treat it as an opaque value and not modify it in any way. You should sign your JWT using the HS256 algorithm and your Client Secret.
+
+![1480](/images/78034eb-Screenshot_2023-10-11_at_1.57.14_PM.png "Screen Shot 2022-08-15 at 9.21.19 AM.png")
+
+Where to find your client secret
+
+<Info>In production you should generate these tokens on your server, but the Developer Dashboard also provides a helpful JWT generator to get started with testing more quickly.</Info>
+
+### Metadata
+
+The JWT is also the recommended way to pass any other metadata such as analytics tokens, monitoring and performance trace IDs, or anything else you might find useful. Besides the required `iss` and `user_id` you can add any arbitrary JSON. The JWT is included in validation webhook and importer webhook requests.

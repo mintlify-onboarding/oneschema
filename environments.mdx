@@ -1,0 +1,85 @@
+---
+title: "Using Environments"
+---
+
+Environments allow you to safely push and validate changes to templates in stages to align with the environments in your deploy process. 
+
+OneSchema automatically sets up environments for Production, Staging, and Development. See our guide on [custom environments](/docs/custom-environments) to set up custom environments.
+
+### What is an Environment?
+
+An Environment consists of three components:
+
+1. A **Client ID**
+2. A **Client Secret**
+3. A list of **Allowed Domains**
+
+The **Client ID** is a public value and will be used in your JavaScript code to initialize an embedded session. The **Client Secret** is a secret value that you will use on your servers to create a secure token for a user going through the embedded import flow. 
+
+**Allowed Domains** are domains where OneSchema can be embedded. When embedding OneSchema into your own site, you will create an `<iframe>` element that opens embed.oneschema.co. For security reasons, OneSchema sets request headers to prevent it from being embedded into another webpage. You may specify multiple domains for each environment. 
+
+![](/images/079ad69-image.png)
+
+## Configuring your Importer with Environments
+
+If this is your first time setting up the embed, follow the instructions in our [Importer Embedding with Quickstart guide](/docs/quickstart-embedding-with-the-sdk). 
+
+Once you have set up your first embed, configure each environment in your deployment process to use the corresponding Client ID and Client Secret pair generated. Refer to our guide on [Generating JWTs](/docs/generating-jwts) for JWT configuration with the Client ID and Client Secret.
+
+## Modifying Templates
+
+### Pushing Changes to Environments
+
+After setting up your environments, you can easily push template changes to them. Follow these steps to push changes:
+
+1. Make the necessary changes to a template.
+2. Go to the "Push changes" dropdown menu.
+3. Select the environments where you want to see those changes.
+
+> ### 🚧
+> 
+> Note: your embed will not be updated with the changes until they have been pushed.
+
+The Production environment is a special environment. When your template changes are pushed to production, they must also be pushed to all other environments.
+
+![](/images/c94bd58-image.png)
+
+### Viewing the Change Log
+
+You can view the history of changes made to a template by accessing the change log. Click on the clock icon next to the template to access the change log.
+
+![](/images/c479757-image.png)
+
+## Using Environment Variables
+
+Environment variables are dynamic values that can be accessed in [Validation Webhooks](/docs/validation-webhook) and [Importer Webhooks](/docs/importer-webhook) when the Embed is initialized. Environment variables can enable you to test different configurations against different environments in your deploy process.
+
+### Defining Variables
+
+To define environment variables, follow these steps:
+
+1. From your developer dashboard, go to Environment Variables in the side navigation.
+2. Click on "Add a new variable."
+3. Select the environment, provide a name, and specify a value for the variable. Variables are represented as key-value pairs.
+
+![](/images/faa33fc-image.png)
+
+Make sure to define variables across all environments. If an embed tries to use an undefined variable, the embed will fail to initialize.
+
+![](/images/da4c385-image.png)
+
+> ### 📘
+> 
+> Testing Webhooks Locally
+> 
+> In order to test Validation Webhooks in your local environment, we recommend using either [ngrok](https://ngrok.com/) or [webhook.site](https://webhook.site/)
+
+### Using Variables in Validation Webhooks
+
+You can reference variables in the validation webhook URL using double curly braces. For example, to reference a variable named "base\_url," use the following syntax with double curly braces around the name:
+
+`{{base_url}}/your-webhook-route`
+
+By utilizing environment variables in the webhook URL, you can dynamically adjust the webhook route based on the specific environment.
+
+![](/images/57e4f5a-image.png)

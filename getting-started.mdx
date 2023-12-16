@@ -1,0 +1,86 @@
+---
+title: "Getting Started"
+description: "An overview of how to setup the OneSchema Embeddable Importer"
+---
+
+OneSchema is the embeddable CSV importer for developers used by product and engineering teams to save months of development time when compared to building an importer in-house ([demo video](https://www.youtube.com/watch?v=ObGvrFL%5FHKs)). 
+
+Setting up OneSchema's Embeddable Importer takes less than 20 minutes and has four main steps:
+
+<Steps>
+  <Step title="Define the import rules">
+    `5 mins`
+  </Step>
+  <Step title="Quickly embed using the provided code snippet">
+    `3 mins`
+  </Step>
+  <Step title="Customize the look and feel">
+    `4 mins`
+  </Step>
+  <Step title="Handle [ingesting the clean data](/docs/importing-validated-data)">
+  </Step>
+</Steps>
+To begin, [create a OneSchema account here](https://app.oneschema.co/signup) if you have not yet done so. Next, simply follow the guides in the _Setup_ section in order.
+
+![Four steps to get started with OneSchema](/images/bf96e4a-Docs_graphic_-_no_arrows_1.png)
+
+### Example JS embedding code snippet
+
+```JavaScript JavaScript
+<div>
+  <script src="https://d3ah8o189k1llu.cloudfront.net/oneschema-importer-latest.min.js"></script>
+  <style>
+  .oneschema-iframe {
+    width: 100vw;
+    height: 100vh;
+    border: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 1000;
+  }
+  </style>
+  <script type="text/javascript">
+    /*
+      if you would like to use this sample in a JavaScript file as part of your
+      build you can install the npm package '@oneschema/importer', copy this
+      sample into a new file, and add this import statement:
+      import oneschemaImporter from '@oneschema/importer'
+    */
+    const importer = oneschemaImporter({
+      clientId: "<YOUR_CLIENT_ID_HERE>",
+      templateKey: "<YOUR_TEMPLATE_KEY_HERE>",
+      importConfig: { type: "local" },
+      userJwt: "<YOUR_JWT_HERE>",
+      devMode: false,
+    })
+
+    function launchOneSchema() {
+      importer.launch()
+
+      importer.on("launch", (data) => {
+        // TODO: handle launch
+        console.log(data)
+      })
+
+      importer.on("success", (data) => {
+        // TODO: handle success
+        console.log(data)
+      })
+
+      importer.on("cancel", () => {
+        // TODO: handle cancel
+      })
+
+      importer.on("error", (message) => {
+        // TODO: handle errors
+        console.log(message)
+      })
+    }
+  </script>
+
+  <button onclick="launchOneSchema()">Launch embed</button>
+</div>
+```
+
+The snippet shown is [JavaScript](/docs/javascript) however OneSchema also has SDKs for [React](/docs/react), [Angular](/docs/angular), and [Vue](/docs/vue).

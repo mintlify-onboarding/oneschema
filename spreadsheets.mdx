@@ -1,0 +1,31 @@
+---
+title: "Spreadsheets"
+---
+
+#### Overview
+
+A spreadsheet is a document in which data is arranged in rows (horizontal) and columns (vertical) to form a grid. Spreadsheets have a header row (usually the top row) in which each cell serves as a description for the data in its corresponding column. Following the header row, are rows of data. Each piece of data in a row is contained within its own cell which corresponds to, and is positioned below, the relevant header.
+
+#### Processable formats
+
+In order for a spreadsheet to be processed by OneSchema, it must follow the format of 2D-tabular data. This means that, header row withstanding, data in a given column must be in a consistent and identical format. Any data in a column that does not conform to the specified [validation](/docs/validations) format, will trigger an error.
+
+#### File formats
+
+Spreadsheets come in different file formats depending on the program used to generate them. The most common file formats are .csv (comma-separated values) and .xlsx (Excel files) which are the formats OneSchema accepts.
+
+OneSchema can upload Excel Workbooks in .xlsx format, and will import one sheet at a time as specified by the user.
+
+#### Examples
+
+##### Processable
+
+The spreadsheet below is processable since the data is consistent row by row.
+
+![1171](/images/3a5313d-Screen_Shot_2022-06-13_at_11.25.55_AM.png "Screen Shot 2022-06-13 at 11.25.55 AM.png") 
+
+##### Not processable
+
+The spreadsheet below is not in 2D-tabular format due to the "_Contacted"_ \+ _"Not Contacted"_ rows. It cannot be processed by OneSchema due to the inconsistency of the data row by row.
+
+![1298](/images/dfecd99-Screen_Shot_2022-06-13_at_11.31.15_AM.png "Screen Shot 2022-06-13 at 11.31.15 AM.png")

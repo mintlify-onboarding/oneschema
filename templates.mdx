@@ -1,0 +1,25 @@
+---
+title: "Templates"
+---
+
+#### Overview
+
+A template is a configuration which specifies what clean data should look like before the import is finalized. Templates are comprised of headers (columns), each of which can have a [validation](/docs/validations) attached.
+
+Each spreadsheet uploaded to OneSchema will be associated with a template, uploaded columns will be mapped to template columns, and OneSchema will validate that user-uploaded data matches the business logic contained in the template before allowing the user to finalize their data import.
+
+![1652](/images/d1cf890-Frame_1099.png "Frame 1099.png") 
+
+Imported data will directly match the headers specified in the associated template. Templates can be used to specify which columns of data are required, if all cells in a specific column must be filled in, and if each value in a column must be unique. 
+
+#### Example
+
+For example, a template called _"Conference attendees"_ may have the following headers: _Name_, _Postal Code_, and _Occupation_. A user wants to import a list of conference attendees and uploads their spreadsheet called _"Meeting guests"_ which has the headers: _Full Name_, _ZIP Code_, and _Job_.
+
+The following mapping will take place between the uploaded data and template headers:
+
+_Full Name_ \--> _Name_  
+_ZIP Code_ \--> _Postal Code_  
+_Job_ \--> _Occupation_
+
+The data will then be validated based on the rules set for each template header and, once no errors remain, the data import with column headers of _Name_, _Postal Code_, and _Occupation_ will be finalized.

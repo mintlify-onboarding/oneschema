@@ -1,0 +1,26 @@
+---
+title: "Types of Columns"
+description: "Required, optional, and custom columns"
+---
+
+## Types of Columns
+
+#### Required Columns
+
+A required column is a column that must be present in the uploaded spreadsheet. This is data that must be present for an import to be successful/for the data to be useful. If a required column is not present, the upload will be blocked. Required columns are pre-defined during [template](/docs/templates) creation.
+
+When uploading a contacts sheet, _Name_ may be required column. If _Name_ is not present, it is impossible to create contacts.
+
+#### Optional Columns
+
+An optional column is a column that may be present in the uploaded spreadsheet, but is not required. This is data that may augment an import, but the import will succeed without. Optional columns are pre-defined during [template](/docs/templates) creation.
+
+When uploading a contacts sheet, _Birthday_ may be an optional column. Some people may include birthdays in their contacts, while others may choose not to. Including birthday information will augment the contacts, but is not required to create them.
+
+#### Custom Columns
+
+A [custom column](/docs/custom-columns) is a column of a specified data type for which a fixed header is not pre-defined in the [template](/docs/templates).
+
+This is useful when you expect an unknown number of columns of the specified data type. E.g. for a given custom column of data type _Number_, the uploaded spreadsheet may include columns _Inventory quantity_, _Days since last shipment_, _Number of shipment destinations_ which will all be mapped to data type _Number_.
+
+For a detailed article on working with custom columns, please visit: [Importing Custom Columns](/docs/custom-columns).

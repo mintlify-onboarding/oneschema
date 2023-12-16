@@ -1,0 +1,29 @@
+---
+title: "Updating templates via API"
+---
+
+## Overview
+
+Templates can be created, modified, and deleted via API. See below for supported endpoints and an example workflow. 
+
+## Endpoints to use
+
+OneSchema templates are serializable as JSON. There are four endpoints related to templates:
+
+* [GET a specific template](/reference/export-template)
+* [POST a new template](/reference/import-template)
+* [DELETE a specific template](/reference/delete-template)
+* [GET a list of all templates](/reference/get-templates)
+
+### Template keys
+
+A template key is an identifier used to tell the OneSchema embedded importer which template to apply. Each template has a defined template key which must be unique for a given OneSchema dashboard. 
+
+A template key must be specified in the embed code prior to launching the importer. Once an embedded session loads, changes made to its applied template will not impact the session. 
+
+### Template update workflow
+
+1. [GET](/reference/export-template) the existing template
+2. [DELETE](/reference/delete-template) the existing template
+3. Make changes to the fetched template
+4. [POST](/reference/import-template) the updated template (suggested: use the same template key as previous template)

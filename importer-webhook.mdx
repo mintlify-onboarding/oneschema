@@ -1,0 +1,181 @@
+---
+title: "Configuring Importer Webhook"
+description: "Importer webhooks allow you to process data from OneSchema and insert data directly into your database."
+---
+
+## Importer Webhook
+
+All you need is a webhook URL and a name to create a webhook in OneSchema's product. Once the webhook is created, a Webhook Export option will be available for all subsequent exports that will send a POST request with JSON to the webhook URL endpoint. The User-Agent HTTP header is set to `OneSchema/1.0`.
+
+### Creating a webhook
+
+To access the webhook creation menu, first go to the Dashboard in the top left of the page header. Then, select the _Webhooks_ tab in the left sidebar. You will see a list of the webhooks that have already been created in the system. Clicking the "Create a new webhook" button will open up a modal with a form that will give you the options for creating a new webhook.
+
+Every webhook has a corresponding unique Webhook Key that will be used to refer to this particular Webhook in APIs that refer to webhooks. The Webhook Key will default to a slugified version of the Webhook name. It can be changed later.
+
+To secure your webhook, we can optionally authenticate webhook requests using [HTTP Basic Auth](https://en.wikipedia.org/wiki/Basic%5Faccess%5Fauthentication). If a secret key is supplied, the secret key will be used as the basic auth password. No username is passed through.
+
+![](/images/531e61b-creating_a_webhook.png "creating a webhook.png") 
+
+### Receiving Data via Webhook
+
+When exporting data via a webhook, OneSchema’s servers will `POST` JSON data to the endpoint provided. Larger lists may require multiple requests to send all of the rows in the list.
+
+The payload of each request will be a JSON object with the following metadata fields:
+
+#### Schema of Webhook Payload Metadata
+
+| Parameter              | Type    | Description                                                                                                                                                                                                                                                                                                                                                           |
+| ---------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| request\_id\*          | String  | A unique ID for this webhook request.                                                                                                                                                                                                                                                                                                                                 |
+| event\_id\*            | String  | Unique id generated for the export. Used to combine data from multiple requests when exporting larger lists.                                                                                                                                                                                                                                                          |
+| webhook\_key\*         | String  | The Webhook Key for the webhook used for the export.                                                                                                                                                                                                                                                                                                                  |
+| template\_key\*        | String  | The Template Key for the Template applied to the list at the time of export.                                                                                                                                                                                                                                                                                          |
+| workspace\_id\*        | Integer | The id of Workspace the exported Sheet belongs to.                                                                                                                                                                                                                                                                                                                    |
+| workspace\_metadata    | Object  | A JSON Object containing any custom metadata associated with the Workspace.                                                                                                                                                                                                                                                                                           |
+| sheet\_id\*            | Integer | The id of the Sheet being exported                                                                                                                                                                                                                                                                                                                                    |
+| embed\_id\*            | Integer | The id of the Embed session                                                                                                                                                                                                                                                                                                                                           |
+| sheet\_metadata\*      | Object  | A JSON Object containing any custom metadata associated with the Sheet at time of import. Includes two additional fields added automatically by OneSchema: original\_file\_name containing the name of the original uploaded file, and original\_sheet\_name containing the name of the sheet in the imported Excel file, if part of a multi-sheet Excel file upload. |
+| columns\*              | Array   | Information about the columns that are included in the export.                                                                                                                                                                                                                                                                                                        |
+| embed\_user\_jwt\*     | String  | When exporting data that was imported from an embedded OneSchema instance, the user JWT that was used to initiate the embedded import flow.                                                                                                                                                                                                                           |
+| sequence\_number\*     | Integer | Current request for the current export, numbered 1 through sequence\_count.                                                                                                                                                                                                                                                                                           |
+| sequence\_count\*      | Integer | Number of requests that will be made for this webhook export.                                                                                                                                                                                                                                                                                                         |
+| total\_record\_count\* | Integer | Total number of exported records.                                                                                                                                                                                                                                                                                                                                     |
+
+Actual row data will be nested inside the `data` attribute of the request payload. Rows without errors will be represented as JSON Objects in a `records` field. The keys of these objects will be the Column Keys of the Template’s columns. Data in unmapped columns will not be returned.
+
+Data for rows with errors will be returned in the `error_records` field. Each element in this array will be a JSON Object with two fields. The `data` field will contain the actual row data (in the same format as the Objects in the `records` field). The `errors` field will be an Object where the keys are Column Keys and the values are error codes.
+
+#### Schema of Webhook Payload Row Data
+
+| Parameter                  | Type       | Description                                                                                                                           |
+| -------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| data.count                 | Integer    | Number of records contained in the request, default of 1000, configurable via the UI.                                                 |
+| data.records               | Object\[\] | Array of records that have no errors                                                                                                  |
+| data.error\_records        | Object\[\] | Array of records that have one or more errors                                                                                         |
+| data.error\_records.data   | Object     | The original data for a record that contains errors                                                                                   |
+| data.error\_records.errors | Object     | Errors for a record that contains errors. The keys of the object are the columns with errors, and the values are lists of error codes |
+
+### Example JSON POST
+
+JSON
+
+`{
+  "request_id": "req_i64b5857b-2b56-40d1-b9d5-0ca64da84495",
+  "event_id": "123e4567-e89b-12d3-a456-426614174000",
+  "webhook_key": "webook-123",
+  "template_key": "contact-template",
+  "webhook_id": 209,
+  "sheet_id": 123,
+  "sheet_metadata": {
+    "original_file_name": "contacts.csv"
+  },
+  "columns": [
+    {
+      "sheet_column_name": "First Name",
+      "template_column_name": "First Name",
+      "template_column_key": "first_name"
+    },
+    {
+      "sheet_column_name": "Last Name",
+      "template_column_name": "Last Name",
+      "template_column_key": "last_name"
+    },
+    {
+      "sheet_column_name": "Email",
+      "template_column_name": "Email",
+      "template_column_key": "email"
+    },
+    {
+      "sheet_column_name": "Account Name",
+      "template_column_name": "Account Name",
+      "template_column_key": "account_name"
+    },
+    {
+      "sheet_column_name": "Market Segment",
+      "template_column_name": "Market Segment",
+      "template_column_key": "market_segment"
+    }
+  ],
+  "embed_user_jwt": "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiI2N2JiMmU1Zi1mMGY3LTQyYTYtYTUxMS0xOGIyNWU2N2I4YzQiLCJ1c2VyX2asdasdasdasd.MaxfODdhWqVamNgK7l8mZrR-A4B2uGDuPWLOreu7dQI",
+  "sequence_number": 1,
+  "sequence_count": 3,
+  "total_record_count": 141,
+  "data": {
+    "count": 50,
+    "records": [
+      {
+        "first_name": "Aditi",
+        "last_name": "Goel",
+        "email": "[[email protected]](/cdn-cgi/l/email-protection)",
+        "account_name": "Google",
+        "market_segment": "ENT"
+      },
+      {
+        "first_name": "Laura",
+        "last_name": "Quinn",
+        "email": "[[email protected]](/cdn-cgi/l/email-protection)",
+        "account_name": "Airbnb",
+        "market_segment": "MM"
+      },
+      {
+        "first_name": "Aditi",
+        "last_name": "Goel",
+        "email": "[[email protected]](/cdn-cgi/l/email-protection)",
+        "account_name": "Google",
+        "market_segment": "ENT"
+      },
+      {
+        "first_name": "Nancy",
+        "last_name": "Zuo",
+        "email": "[[email protected]](/cdn-cgi/l/email-protection)",
+        "account_name": "Gigashots",
+        "market_segment": "MM"
+      },
+      {
+        "first_name": "Liam",
+        "last_name": "Quipp",
+        "email": "[[email protected]](/cdn-cgi/l/email-protection)",
+        "account_name": "Box",
+        "market_segment": "SMB"
+      },
+      {
+        "first_name": "Lexie",
+        "last_name": "Goodrick",
+        "email": "[[email protected]](/cdn-cgi/l/email-protection)",
+        "account_name": "Roblox",
+        "market_segment": "ENT"
+      }
+			...
+    ],
+    "error_records": [
+      {
+        "data": {
+          "first_name": "Robert",
+          "last_name": "",
+          "email": "[[email protected]](/cdn-cgi/l/email-protection)",
+          "account_name": "Datadog",
+          "market_segment": "snb"
+        },
+        "errors": {
+          "last_name": [23],
+          "market_segment": [38]
+        }
+      }
+      ...
+    ]
+  }
+}
+`
+
+### Error Codes
+
+Error codes will indicate the type of validation that failed (e.g., a `MM/DD/YY` date validation, or and email address validation). List of all available validations, and their corresponding error codes [available here](/reference/error-codes).
+
+### Retries
+
+If the webhook call times out after 30 seconds, or if the webhook returns a server error response code (5xx), OneSchema will retry the the call up to three times with exponential backoff. 
+
+A 408 (request timeout) or 429 (too many requests) code will also prompt OneSchema to retry.
+
+The `request_id` will be the same for every retry.

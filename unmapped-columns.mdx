@@ -1,0 +1,54 @@
+---
+title: "Importing Unmapped Columns"
+description: "Columns that were not mapped to the template can still be included in the imports."
+---
+
+## Unmapped Columns
+
+If the "include unmapped columns" customization setting is active, all unmapped columns from the uploaded sheet will be shown in the cleaning step and will be included in your imports. Unmapped columns won't be validated. Columns that are deleted by the user in the mapping step won't show up in the cleaning step and won't be included in the imports.
+
+The unmapped columns are included in a similar way to [Custom Columns](/docs/custom-columns). An unmapped column is denoted in the `columns` array with the field `"is_unmapped": true`. The values of an unmapped column are included as a JSON object in a key called `$unmapped`. The keys of the object are indexes into the `columns` array.
+
+For instance, an importer webhook response may look something like this:
+
+JSON
+
+`{
+  "event_id": "123e4567-e89b-12d3-a456-426614174000",
+  ...
+  "columns": [
+    {
+      "sheet_column_name": "First Name",
+      "template_column_name": "First Name",
+      "template_column_key": "first_name"
+    },
+    {
+      "sheet_column_name": "Middle Name",
+      "is_unmapped": true
+    },
+    {
+      "sheet_column_name": "Last Name",
+      "template_column_name": "Last Name",
+      "template_column_key": "last_name"
+    }
+  ],
+  "data": {
+    "count": 123,
+    "records": [
+      {
+        "first_name": "Aditi",
+        "last_name": "Goel",
+        "$unmapped": {
+          "1": "M."
+        }
+      },
+      ...
+    ],
+    "error_records": [
+      ...
+    ]
+  }
+}
+`
+
+In this example, the "Middle Name" column was not mapped to any template column. It is the second column in the `columns` array, therefore its index is 1.

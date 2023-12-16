@@ -1,0 +1,496 @@
+---
+title: "Using Code Hooks"
+---
+
+## Overview
+
+Code Hooks allow you to write custom functions for validating uploaded data and modifying uploaded data at different points in the import process. They are created and attached to templates on the [Transforms](https://app.oneschema.co/developer/transforms) and [Advanced Validations](https://app.oneschema.co/developer/validations) tabs of the Developer Dashboard.
+
+Code Hooks can be written in JavaScript or TypeScript. There are currently three types of code hooks: [post-upload code hooks](/docs/code-hooks-2#post-upload-code-hooks), [post-mapping code hooks](/docs/code-hooks-2#post-mapping-code-hooks), and [validation code hooks](/docs/code-hooks-2#validation-code-hooks). Each type of code hook requires a function to be implemented with a specific type signature. Read below to learn more about each type of code hook.
+
+Code Hooks have the ability to [fetch data from the internet](#fetch) and use [npm packages](#supported-npm-packages).
+
+> ### 📘
+> 
+> Improvements over [AssemblyScript Code Hooks](/docs/code-hooks)
+> 
+> Users of AssemblyScript Code Hooks will notice several improvements with JavaScript Code Hooks:
+> 
+> * Performance: code hooks are noticeably faster for large spreadsheets
+> * Language: code hooks were previously written in AssemblyScript, which has some limitations when compared to TypeScript/JavaScript
+> * Packages: code hooks have access to npm packages
+> * Data Fetching: code hooks can fetch data from the internet
+
+  
+---
+
+## Post-upload Code Hooks
+
+Post-upload code hooks allow you to modify data directly after it's been uploaded. This is useful if the data that's uploaded needs to be restructured in order for it to look like a typical spreadsheet.
+
+Post-upload code hooks require implementing a function with the following type signature:
+
+`function(rows: string[][]): string[][]`
+
+This function takes in the rows in the uploaded spreadsheet and returns a new set of rows. 
+
+#### Example: Nested Data
+
+The following spreadsheet cannot be imported as-is:
+
+| Company: Acme         |                                                    |
+| --------------------- | -------------------------------------------------- |
+| Name                  | Email                                              |
+| Sharlene Breach       | [\[email protected\]](/cdn-cgi/l/email-protection) |
+| Mariya Son            | [\[email protected\]](/cdn-cgi/l/email-protection) |
+| |                     |                                                    |
+| Company: Batman, Inc. |                                                    |
+| Name                  | Email                                              |
+| Francklyn Soles       | [\[email protected\]](/cdn-cgi/l/email-protection) |
+| Rhea Lumsdon          | [\[email protected\]](/cdn-cgi/l/email-protection) |
+
+A post-upload code hook can transform this data into something more usable. In this case, we may want the data to look like this:
+
+| Company      | Name            | Email                                              |
+| ------------ | --------------- | -------------------------------------------------- |
+| Acme         | Sharlene Breach | [\[email protected\]](/cdn-cgi/l/email-protection) |
+| Acme         | Mariya Son      | [\[email protected\]](/cdn-cgi/l/email-protection) |
+| Batman, Inc. | Francklyn Soles | [\[email protected\]](/cdn-cgi/l/email-protection) |
+| Batman, Inc. | Rhea Lumsdon    | [\[email protected\]](/cdn-cgi/l/email-protection) |
+
+The following post-upload code hook performs this transformation:
+
+TypeScript
+
+`export default function(rows: string[][]): string[][] {
+     let outRows = []
+
+     let company = ""
+     let headerRowNext = false
+     let headersSet = false
+
+     rows.forEach((row) => {
+         if (row[0].startsWith("Company: ")) {
+             company = row[0].replace("Company: ", "")
+             headerRowNext = true
+         } else if (headerRowNext) {
+            if (!headersSet) {
+              row.unshift("Company")
+              outRows.push(row)
+              headersSet = true
+            }
+            headerRowNext = false
+         } else if (row[0] != "") {
+             row.unshift(company)
+             outRows.push(row)
+         }
+     })
+     
+     return outRows
+ }
+`
+
+  
+---
+
+## Post-mapping Code Hooks
+
+Post-mapping code hooks perform transformations to the spreadsheet after it's been mapped. Each post-mapping code hook runs after the spreadsheet has been mapped.
+
+The [oneschema/postmapping package](#package-oneschemapostmapping-1) exposes several functions which allow you to perform operations on the spreadsheet, such as creating columns, transforming column values, and deleting rows.
+
+Examples of things post-mapping code hooks are useful for include splitting and merging columns.
+
+#### Example: Column Splitting
+
+The following post-mapping hook looks for a column mapped to the `full_name` template column using the [hasColumn](#has-column) function. If this template column has been mapped and the `first_name` and `last_name` template columns have not been mapped, it uses [createColumns](#create-columns) to create `first_name` and `last_name` columns and populate them using the data in the `full_name` column. The `full_name` column is then deleted using [deleteColumn](#delete-column), so it won't appear in the "Review & finalize" step.
+
+TypeScript
+
+`import { createColumns, deleteColumn, hasColumn } from "oneschema/postmapping"
+
+export default function() {
+  if (hasColumn("full_name") && !hasColumn("first_name") && !hasColumn("last_name")) {
+    createColumns(["first_name", "last_name"], (row) => row["full_name"].split(" ", 2))
+    deleteColumn("full_name")
+  }
+}
+`
+
+#### Example: Column Transforms
+
+The [transformColumn](#transform-column) and [transformColumns](#transform-columns) functions are useful for modifying column values. The following post-mapping hook checks if the `phone1` column is empty and, if it is, updates it to be the value of the `phone2` column. 
+
+TypeScript
+
+`import { transformColumn } from "oneschema/postmapping"
+
+export default function() {
+  transformColumn("phone1", (row) => {
+    if (row["phone1"].length > 0) {
+      // Do nothing.
+      return null
+    } else {
+      return row["phone2"]
+    }
+  })
+}
+`
+
+> ### 📘
+> 
+> Best Practice
+> 
+> If your code accesses a column, (e.g. `last_name`), you should either mark this column as "Column must be mapped" in the template, or call `has_column("last_name")` in your code before accessing values in this column.
+
+  
+---
+
+## Validation Code Hooks
+
+Validation code hooks perform custom validations on the data in a spreadsheet. They can add errors and warnings to cells in the spreadsheet. These are useful if the validations you'd like to perform cannot be done using the existing data type validations in OneSchema. These validations are run directly after mapping and after any change has been made to the values in the spreadsheet.
+
+When creating a validation code hook, you must first select which template columns your code hook references. This lets us know when the validation should be run (and re-run if data changes). 
+
+Next, you must choose whether this is a row validation or a column validation. Row validations are the most common type of validation. These validations can be expressed using the values in a single row. Column validations, on the other hand, can only be expressed by referencing all values in a column. A typical example of a column validation is a column uniqueness check, where you need to look at all values in a column to determine if a given value is unique. See below for examples of each type of validation.
+
+The last step is writing the code. You must export a function with the following signature: `function(rows: Row[]): void`. The function can use [createError](#row%5Fcreate%5Ferror) to create errors on the rows. Be sure to follow [error message best practices](/docs/error-message-best-practices). See below for example of row and column validations.
+
+#### Example: Row Validation
+
+This row validation expresses the constraint that `state` must be non-empty if `city` is non-empty:
+
+TypeScript
+
+`import { Row } from "oneschema/validation"
+
+export default function(rows: Row[]) {
+    rows.forEach((row) => {
+        if (row.values["city"] !== "" && row.values["state"] === "") {
+            row.createError("state", {
+              title: "Invalid State",
+              message: "State must be non-empty when city is provided",
+            })
+        }
+    })
+}
+`
+
+#### Example: Column Validation
+
+This column validation creates errors on cells in the "id" column if the an ID has already been seen on a previous row:
+
+TypeScript
+
+`import { Row } from "oneschema/validation"
+
+export default function(rows: Row[]) {
+    const valuesSeen = new Set()
+    rows.forEach((row) => {
+      if (valuesSeen.has(row.values["id"])) {
+        row.createError("id", {
+          title: "Duplicate Value",
+          message: "This value was seen on a previous row.",
+        })
+      } else {
+        valuesSeen.add(row.values["id"])
+      }
+    })
+}
+`
+  
+  
+---
+
+## Supported NPM packages
+
+The following NPM packages are available to use in Code Hooks. If you would like to use a package not listed here please reach out to the OneSchema support team.
+
+| NPM package                    | Version |
+| ------------------------------ | ------- |
+| dayjs                          | 1.11    |
+| dayjs/plugin/customParseFormat | 1.11    |
+| dataframe-js                   | 1.4     |
+| fuse.js                        | 6.6.2   |
+| uuid                           | 9.0     |
+
+  
+To use a package add an import statement to your code hook. For example `import dayjs from "dayjs"`
+
+  
+---
+
+## API Reference
+
+##### Package: "oneschema"
+
+* [EMBED\_USER\_JWT](#embed-user-jwt)
+* [FetchOptions](#fetchoptions)
+* [fetch](#fetch)
+
+##### Package: "oneschema/postmapping"
+
+* [Column](#column)
+* [CreateColumnOptions](#createcolumnoptions)
+* [createColumn](#create-column)
+* [createColumns](#create-columns)
+* [deleteColumn](#delete-column)
+* [deleteRows](#delete-rows)
+* [findColumn](#find-column)
+* [hasColumn](#has-column)
+* [transformColumn](#transform-column)
+* [transformColumns](#transform-columns)
+
+##### Package: "oneschema/validation"
+
+* [CreateErrorOptions](#createerroroptions)
+* [Row](#row)
+* [Severity](#severity)
+  
+---
+
+  
+### Package: "oneschema"
+
+  
+**const EMBED\_USER\_JWT: string**
+
+The encoded embed user JWT for the embed session.
+
+---
+
+#### FetchOptions
+
+##### Fields
+
+* method?: string  
+The HTTP method ("GET", "POST", etc.). If not specified, it is assumed to be a GET request.
+* body?: string  
+The body of the request.
+* headers?: { \[key: string\]: string }  
+Headers to be included with the request.
+
+---
+
+**async function fetch(url: string, options?: [FetchOptions](#fetchoptions)): Promise<[Response](https://deno.land/api@v1.34.3?s=Response)\>**
+
+This function allows you to fetch data over the internet.
+
+**_Example_**
+
+The following row validation checks if the values in the `first_name` column exist in a list of names that are fetched from a URL:  
+
+TypeScript
+
+`import { fetch } from "oneschema"
+import { Row } from "oneschema/validation"
+
+const response = await fetch("https://webhook.site/cff17c25-3a51-49ce-9751-d880981ffba7")
+const NAMES_DATA = await response.json()
+
+export default function(rows: Row[]) {
+    rows.forEach((row) => {
+        if (!NAMES_DATA["names"].includes(row.values["first_name"])) {
+            row.createError("first_name", {
+              title: "Invalid Name",
+              message: "This name is invalid.",
+            })
+        }
+    })
+}
+
+`
+
+  
+---
+
+  
+### Package: "oneschema/postmapping"
+
+  
+#### Column
+
+Information about the column in a spreadsheet.
+
+##### Fields
+
+* key: string
+* index: number
+* validation\_options: { \[name: string\]: any } | undefined  
+The validation options configured for this column.
+
+---
+
+#### CreateColumnOptions
+
+##### Fields
+
+* index?: number  
+A number representing the position of the column relative to other columns.
+
+---
+
+**function createColumn(** 
+**key: string,** 
+**func?: (row: Record<string, string\>) => string | null,** 
+**options?: [CreateColumnOptions](#createcolumnoptions),** 
+**)**
+
+Creates a new column `key`. If `func` is defined it is used to populate the rows for the new column. `func` will be called for each row and the result of it will be set for the new column in this row. This function will raise an error if a column with `key` already exists.
+
+**_Example_**
+
+Create a `full_name` column by merging `first_name` and `last_name`:
+
+TypeScript
+
+`createColumn("full_name", (row) => row["first_name"] + " " + row["last_name"])
+`
+
+Create an empty `last_name` column next to the `first_name` column:
+
+TypeScript
+
+`createColumn("last_name", null, { index: findColumn("first_name").index })
+`
+
+---
+
+**function createColumns(** 
+**keys: string\[\],** 
+**func?: (row: Record<string, string\>) => (string | null)\[\],** 
+**options?: [CreateColumnOptions](#createcolumnoptions),** 
+**)**
+
+Creates multiple new columns with the given keys. If func is defined it is used to populate the rows for the new columns. func is called for each row and the result values will be used to populate the new columns for this row. If func returns more values than columns created it will ignore the additional values. If less values than columns are returned empty values will be inserted in the additional columns. This function will raise an error if a column for any of the provided keys already exists.
+
+**_Example_**
+
+Create `first_name` and `last_name` columns by splitting `full_name`:
+
+TypeScript
+
+`createColumns(["first_name", "last_name"], (row) => row["full_name"].split(" "))
+`
+
+---
+
+**function deleteColumn(key: string)**
+
+Deletes the column with the given `key`. This function will raise an error if no column with the given `key` exists.
+
+---
+
+**function deleteRows(** 
+**func: (row: Record<string, string\>) => boolean,** 
+**)**
+
+Delete all rows for which `func` returns `true`.
+
+**_Example_**
+
+Delete all rows in which the `id` column is empty:
+
+TypeScript
+
+`deleteRows((row) => row["id"] === "")
+`
+
+---
+
+**function findColumn(key: string): [Column](#column) | undefined**
+
+Find a column with `key`. Returns the [Column](#column) with `key` or `undefined` if no column with key exists.
+
+---
+
+**function hasColumn(key: string): boolean**
+
+Check if a column with key exists. Returns `true` is a column with key exists, `false` otherwise.
+
+---
+
+**function transformColumn(** 
+**key: string,** 
+**func: (row: Record<string, string\>) => string | null,** 
+**)**
+
+Allows updating the values in column `key`. `func` will be called for each row. If it returns a value the cell will be updated with this value. This function will raise an error if column with `key` does not exists.
+
+**_Example_**
+
+Upper-case the `full_name` column:
+
+TypeScript
+
+`transformColumn("full_name", (row) => row["full_name"].toUpperCase())
+`
+
+---
+
+**function transformColumns(** 
+**func: (row: Record<string, string\>) => Record<string, string | null\>** 
+**)**
+
+Allows updating multiple columns. `func` is called for each row and the result is used to update the cells. This function will raise an error if a column for any of the provided keys does not exists.
+
+**_Example_**
+
+Upper-case the `first_name` and `last_name` columns:
+
+TypeScript
+
+`transformColumns((row) => {
+    return {
+        "first_name": row["first_name"].toUpperCase(),
+        "last_name": row["last_name"].toUpperCase(),
+    }
+})
+`
+
+  
+---
+
+  
+### Package: "oneschema/validation"
+
+  
+#### Severity
+
+An enum representing the severity of an error
+
+##### Values
+
+* ERROR
+* WARNING
+
+#### CreateErrorOptions
+
+##### Fields
+
+* title: string  
+The title for the error. This is displayed as the title on the error popover.
+* message: string  
+A message indicating why the value is invalid. This message is displayed as the contents of the error popover.
+* severity?: Severity  
+If this isn't specified, the severity is `Severity.ERROR`.
+* suggestion?: string | string\[\]  
+If specified, one or more valid values to suggest as replacements for the invalid value.
+
+---
+
+#### Row
+
+A row in the spreadsheet
+
+##### Methods
+
+* **createError(column: string, options: [CreateErrorOptions](#createerroroptions))**  
+Create an error on the specified column with the given options. The options must include a `title` and a `message`.
+
+---
+
+  
+---
+
+  

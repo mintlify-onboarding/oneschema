@@ -1,0 +1,41 @@
+---
+title: "Upload files via API"
+---
+
+### Why Initialize via API?
+
+OneSchema's importer consists of 4 main steps: Upload, Header Row Selection, Mapping, and Review. We understand that every company's file ingestion process is unique. Perhaps you want to internally handle some portions of the import process while still using OneSchema to handle the rest of the import process. If so, initializing the OneSchema Importer via API is a great solution.
+
+Suppose you want to support file ingestion from a third party (such as importing data directly from Salesforce). Rather than having your customer use the OneSchema UI to upload a file, our API allows your engineering team to send the data to OneSchema directly. Depending on the status of the file uploaded, the OneSchema Importer allows you to surface a subset of the 4 main steps. For example, if you want your end user to only see the Mapping and Review steps of the OneSchema Importer, you could initialize the importer by uploading a file with the header rows already set via API.
+
+### How to initialize via API?
+
+Before we dive into using the API to import files, you need to set up few things. First, make sure you have created some [templates](/docs/creating-and-editing-templates), which dictate the validation rules for the uploaded file. Next, go through our quickstart [importer](/docs/quickstart-embedding-with-the-sdk) flow to set up a basic OneSchema Importer. Finally, make sure you have an [external api key](/reference/getting-started-with-your-api), which will allow you to make API requests to OneSchema's servers.
+
+Once you have all three of the above components set up, we are ready to start working with the external API. For each unique import, you will need to call the [POST /v1/embeds](/reference/create-embed) endpoint. The return will be a JSON containing the `id` of the created embed as well as a session `token`. 
+
+Creating the embed session in this way will allow you to use our external API to skip specific steps. The `embed_id` must be included in the query of future API requests so that we can upload and modify the file into the appropriate instance. In order to load your importer with this session, the `token` must be passed into the [Importer SDK](/docs/javascript) (with key `sessionToken`) as part of the [config](/docs/javascript#oneschemaconfig) object. 
+
+### Using the external API to skip importer steps
+
+![](/images/c5bb418-Using_the_external_API_to_skip_importer_steps.png)
+
+As detailed before, there are 4 main Importer steps: Upload, Header Row Selection, Mapping, and Review. Using the external API, you can configure your OneSchema importer to skip the first 1-3 steps by making the appropriate calls. 
+
+#### Upload a file via API
+
+To upload a file via API, use the [POST /v1/embeds/{embed\_id}/upload](/reference/upload-a-csv-or-excel-file) endpoint. Loading a session with a file uploaded in this manner will automatically skip the Upload step.
+
+#### Set header row via API
+
+To set the header row via API, use the [POST /v1/embeds/{embed\_id}/set-header](/reference/set-header-row-on-an-embed-file) endpoint. Loading a session with a file which has header rows set will automatically skip the Upload and Header Row Selection steps. 
+
+#### Mapping via API
+
+To apply mappings via API, use the [POST /v1/embeds/{embed\_id}/map](/reference/set-column-mapping-on-an-embed-file) endpoint. You can specify an array of mappings to override OneSchema's auto-mapping. The mapping object is a tuple of sheet column identifiers (eg. `column_id` or `column_name`) and template column identifiers (eg.`template_column_key`). Loading a session with a file that has header rows set and is already mapped will automatically skip the Upload, Header Row Selection, and Mapping steps.
+
+### Putting it all together
+
+Now that we know which endpoints to use to skip the desired steps in the OneSchema importer, let's walk through an example workflow. Let's assume you are trying to import data directly from Salesforce and want to skip directly to the spreadsheet UI in the Review step.
+
+First, create an [embedded session](/reference/create-embed) and save the `embed_id`, which will be passed as a path parameter to every subsequent API call. Then, you would need to call the [POST /v1/embeds/{embed\_id}/upload](/reference/upload-a-csv-or-excel-file) endpoint followed by the [POST /v1/embeds/{embed\_id}/set-header](/reference/set-header-row-on-an-embed-file) endpoint. Afterwards, use the [POST /v1/embeds/{embed\_id}/map](/reference/set-column-mapping-on-an-embed-file) to map the sheet columns to the appropriate template columns. Finally, pass the `sessionToken` as a parameter to your [OneSchema Importer](/docs/javascript#sample-usage). On launch, the Importer will skip directly to the final Review step.

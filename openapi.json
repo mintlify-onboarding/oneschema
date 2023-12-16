@@ -1,0 +1,261 @@
+{
+        "openapi": "3.1.0",
+        "info": {
+            "title": "OneSchema API",
+            "version": "1"
+        },
+        "servers": [
+            {
+                "url": "https://api.oneschema.co"
+            }
+        ],
+        "components": {
+            "securitySchemes": {
+                "sec0": {
+                    "type": "apiKey",
+                    "in": "header",
+                    "name": "X-API-KEY"
+                }
+            }
+        },
+        "security": [
+            {
+                "sec0": []
+            }
+        ],
+        "paths": {
+            "/v1/templates": {
+                "post": {
+                    "summary": "Import a template as JSON",
+                    "description": "",
+                    "operationId": "import-template",
+                    "requestBody": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "name",
+                                        "template_key",
+                                        "columns"
+                                    ],
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "description": "Template name"
+                                        },
+                                        "template_key": {
+                                            "type": "string",
+                                            "description": "The key used to identify the template, used in both validation webhooks and importer embedding."
+                                        },
+                                        "columns": {
+                                            "type": "array",
+                                            "description": "The template columns that define the template schema.",
+                                            "items": {
+                                                "properties": {
+                                                    "label": {
+                                                        "type": "string",
+                                                        "description": "Template column name"
+                                                    },
+                                                    "key": {
+                                                        "type": "string",
+                                                        "description": "Template column key"
+                                                    },
+                                                    "data_type": {
+                                                        "type": "string",
+                                                        "description": "Validation type to check all values in the column. Example types are TEXT, NUMBER, DATE_MDY.",
+                                                        "enum": [
+                                                            "PICKLIST",
+                                                            "NUMBER",
+                                                            "PERCENTAGE",
+                                                            "DATE_MDY",
+                                                            "DATE_DMY",
+                                                            "DATE_ISO",
+                                                            "DATETIME_ISO",
+                                                            "DATETIME_MDYHM",
+                                                            "DATE_YMD",
+                                                            "DATE_DMMMY",
+                                                            "TIME_HHMM",
+                                                            "UNIX_TIMESTAMP",
+                                                            "LOCATION_ADDRESS",
+                                                            "URL",
+                                                            "DOMAIN",
+                                                            "FULL_NAME",
+                                                            "FIRST_NAME",
+                                                            "LAST_NAME",
+                                                            "EMAIL",
+                                                            "UNIT_OF_MEASURE",
+                                                            "CURRENCY_CODE",
+                                                            "PHONE_NUMBER",
+                                                            "US_PHONE_NUMBER_EXT",
+                                                            "MONEY",
+                                                            "IANA_TIMEZONE",
+                                                            "CUSTOM_REGEX",
+                                                            "ALPHABETICAL",
+                                                            "TEXT",
+                                                            "SSN_MASKED",
+                                                            "SSN_UNMASKED",
+                                                            "UUID",
+                                                            "ENUM_US_STATE_TERRITORY",
+                                                            "ENUM_COUNTRY",
+                                                            "LOCATION_POSTALCODE",
+                                                            "JSON",
+                                                            "FILE_NAME"
+                                                        ]
+                                                    },
+                                                    "validation_options": {
+                                                        "type": "object",
+                                                        "description": "Extra data required for validation. Possible options include an array of picklist options or a format for ENUM_COUNTRY or ENUM_US_STATE_TERRITORY."
+                                                    },
+                                                    "is_required": {
+                                                        "type": "boolean",
+                                                        "description": "Validation to check that a column has no empty values.",
+                                                        "default": false
+                                                    },
+                                                    "is_unique": {
+                                                        "type": "boolean",
+                                                        "description": "Validation to check that a column has no duplicate values.",
+                                                        "default": false
+                                                    },
+                                                    "is_custom": {
+                                                        "type": "boolean",
+                                                        "description": "Specification for whether the template column is a custom column. Custom Columns can be mapped multiple times and will retain the initial sheet header on import (as opposed to being replaced with the template column name).",
+                                                        "default": false
+                                                    },
+                                                    "letter_case": {
+                                                        "type": "string",
+                                                        "description": "Validation to check that a value is upper, lower, or proper cased. See the Letter Cases section below.",
+                                                        "enum": [
+                                                            "LETTER_CASE_TITLE",
+                                                            "LETTER_CASE_UPPER",
+                                                            "LETTER_CASE_LOWER"
+                                                        ]
+                                                    },
+                                                    "min_char_limit": {
+                                                        "type": "integer",
+                                                        "description": "Validation to check that the number of characters is at least min_char_limit",
+                                                        "format": "int32"
+                                                    },
+                                                    "max_char_limit": {
+                                                        "type": "integer",
+                                                        "description": "Validation to check that the number of characters does not exceed max_char_limit",
+                                                        "format": "int32"
+                                                    },
+                                                    "delimiter": {
+                                                        "type": "string",
+                                                        "description": "Column configuration to tell the system that there are multiple values per cell separated by the given delimiter. Example delimiters are semicolon, comma, etc."
+                                                    },
+                                                    "must_exist": {
+                                                        "type": "boolean",
+                                                        "description": "Column configuration to tell the system that it is an error if this template column does not exist in the spreadsheet.",
+                                                        "default": false
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "description": "A free-form description of this template column."
+                                                    },
+                                                    "default_value": {
+                                                        "type": "string",
+                                                        "description": "A value that's used for this field if uploaded values are empty."
+                                                    }
+                                                },
+                                                "required": [
+                                                    "label",
+                                                    "key"
+                                                ],
+                                                "type": "object"
+                                            }
+                                        },
+                                        "validation_hooks": {
+                                            "type": "array",
+                                            "description": "The webhook definitions for any validation webhooks attached to this template.",
+                                            "items": {
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string",
+                                                        "description": "Name of a validation hook"
+                                                    },
+                                                    "url": {
+                                                        "type": "string",
+                                                        "description": "The endpoint for the validation hook"
+                                                    },
+                                                    "secret_key": {
+                                                        "type": "string",
+                                                        "description": "An optional secret for authenticating the validation hook."
+                                                    },
+                                                    "column_keys": {
+                                                        "type": "array",
+                                                        "description": "The keys for the columns that are being validated by the validation hook.",
+                                                        "default": [],
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "custom_column_keys": {
+                                                        "type": "array",
+                                                        "description": "The keys for the custom columns that are being validated by the validation hook.",
+                                                        "default": [],
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "required": [
+                                                    "name",
+                                                    "url",
+                                                    "column_keys"
+                                                ],
+                                                "type": "object"
+                                            }
+                                        },
+                                        "push_to_environments": {
+                                            "type": "array",
+                                            "description": "Optional array of environment names that the template is pushed to. If this param is not set, the template will be pushed to all environments by default.",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "200",
+                            "content": {
+                                "application/json": {
+                                    "examples": {
+                                        "Result": {
+                                            "value": "{}"
+                                        }
+                                    },
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {}
+                                    }
+                                }
+                            }
+                        },
+                        "400": {
+                            "description": "400",
+                            "content": {
+                                "application/json": {
+                                    "examples": {
+                                        "Result": {
+                                            "value": "{}"
+                                        }
+                                    },
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "deprecated": false
+                }
+            }
+        }
+}

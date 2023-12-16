@@ -1,0 +1,311 @@
+---
+title: "Validating Against External Sources"
+description: "OneSchema’s validation API allows you to use your own API endpoint to create a column validator."
+---
+
+## Validation Webhook
+
+Similar to our data export webhooks feature, you will only need a URL endpoint and a template to get started using this feature. Once your validation webhook is configured, every time your template is mapped to a sheet, your validation webhook will be run alongside our other validations in our validation library.
+
+OneSchema's validation API operates by sending POST requests with JSON values to the supplied endpoints. The User-Agent HTTP header is set to `OneSchema/1.0`.
+
+For row hooks, each request will have a customizable batch size which defaults to 1000 values. If a list has more rows than the batch size, multiple requests for a row hook will be sent. You have to select which columns should be sent to the validation hook. Row hooks are triggered on initial validation as well as after subsequent updates to any cell in the specified columns.
+
+For column hooks, only one request will be sent with ALL of the rows on the spreadsheet even if the spreadsheet has more than 1000 rows. Column hooks are triggered once on initial validation and each time a cell in one of the configured columns changes.
+
+> ### 📘
+> 
+> Please contact your OneSchema representative for more info on setting up column hooks.
+
+### Attaching a Validation Webhook to a Template
+
+Validation Webhooks are configured on an individual template's configuration page. [More info here](/docs/creating-and-editing-templates#validation-webhooks). 
+
+#### Validation JSON request schema
+
+| Parameter          | Type       | Description                                                                                                                                                                                                                                                                                                                                                           |
+| ------------------ | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| rows\*             | Object\[\] | Array of rows to validate.                                                                                                                                                                                                                                                                                                                                            |
+| rows\[\].row\_id\* | Integer    | Id of a single row. Use this value in the response data to specify errors.                                                                                                                                                                                                                                                                                            |
+| rows\[\].values\*  | Object     | A map from template column names to the value in that column for a single row. All values are represented as strings. Only columns that are part of the hook's configuration are included.                                                                                                                                                                            |
+| columns\*          | Object\[\] | Ordered array of mapped columns. Used for referencing [custom columns.](/docs/validation-webhook#validation-hooks-with-custom-columns)                                                                                                                                                                                                                                |
+| template\_key\*    | String     | An optional key specified on the template that can be used instead of template\_id to determine what template is being validated.                                                                                                                                                                                                                                     |
+| hook\_id\*         | Integer    | A unique identifier for this validation hook.                                                                                                                                                                                                                                                                                                                         |
+| hook\_name\*       | String     | The name of the hook, as configured on the validation hook UI.                                                                                                                                                                                                                                                                                                        |
+| workspace\_id\*    | Integer    | The id of Workspace containing the Sheet containing the rows being validated.                                                                                                                                                                                                                                                                                         |
+| sheet\_id\*        | Integer    | The id of the Sheet containing the rows being validated.                                                                                                                                                                                                                                                                                                              |
+| sheet\_metadata\*  | Object     | A JSON Object containing any custom metadata associated with the Sheet at time of import. Includes two additional fields added automatically by OneSchema: original\_file\_name containing the name of the original uploaded file, and original\_sheet\_name containing the name of the sheet in the imported Excel file, if part of a multi-sheet Excel file upload. |
+| embed\_user\_jwt\* | String     | If you are embedding OneSchema within your own site, this will contain the JWT token used to initialize a customer’s session.                                                                                                                                                                                                                                         |
+| request\_id\*      | String     | A unique ID for this webhook request.                                                                                                                                                                                                                                                                                                                                 |
+
+### Example JSON POST request body
+
+JSON
+
+`{
+  "rows": [
+    {
+      "row_id": 1,
+      "values": {
+        "contact_id": "1438263",
+        "contact_name": "John Doe",
+        "business_vertical": "SaaS Sales"
+      }
+    },
+    {
+      "row_id": 2,
+      "values": {
+        "contact_id": "900372",
+        "contact_name": "Aaron Smith",
+        "business_vertical": "Sportswear"
+      }
+    },
+    {
+      "row_id": 3,
+      "values": {
+        "contact_id": "6803830",
+        "contact_name": "Johnny Apple",
+        "business_vertical": "Shipping Infrastructure"
+      }
+    },
+    {
+      "row_id": 4,
+      "values": {
+        "contact_id": "1684023",
+        "contact_name": "Nancy Jackson",
+        "business_vertical": "Marketing"
+      }
+    }
+  ],
+  "columns": [
+    {
+      "sheet_column_name": "Contact ID",
+      "template_column_name": "Contact ID",
+      "template_column_key": "contact_id"
+    },
+    {
+      "sheet_column_name": "Contact Name",
+      "template_column_name": "Contact Name",
+      "template_column_key": "contact_name"
+    },
+    {
+      "sheet_column_name": "Business Vertical",
+      "template_column_name": "Business Vertical",
+      "template_column_key": "business_vertical"
+    }
+  ],
+  "template_key": "contact-template",
+  "hook_id": 823,
+  "hook_name": "Hook 1",
+  "workspace_id": 23155,
+  "sheet_id": 23145,
+  "sheet_metadata": {
+    "original_file_name": "contacts.csv"
+  },
+  "embed_user_jwt": "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiI2N2JiMmU1Zi1mMGY3LTQyYTYtYTUxMS0xOGIyNWU2N2I4YzQiLCJ1c2VyX2asdasdasdasd.MaxfODdhWqVamNgK7l8mZrR-A4B2uGDuPWLOreu7dQI",
+  "request_id": "req_v85bd03e1-32aa-4600-8f9c-5ff0b0d206c5"
+}
+`
+
+In order to validate the values, OneSchema will expect the endpoint to return an array of warnings and errors. Each warning and error should specify the `row_id`, the `column` the warning or error appeared in, the `severity` of the issue (`"warning"` or `"error"`), a `message` to be displayed in the UI (see [best practices for error messages](/docs/error-message-best-practices)), and optionally a `suggestion` can be provided to the user.
+
+Issues can be raised for multiple columns in a single row. For example, if a validation hook verifies that two columns `A` and `B` sum to a value in column `C`, the validation hook may choose to say only column `C` has an error, or that each of columns `A`, `B`, and `C` have an error, depending on the relationship between the columns and the semantics they want to expose.
+
+#### Validation Hook JSON Response Schema
+
+| Parameter          | Type                 | Description                                                                                                                                                                                                      |
+| ------------------ | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| \[\]               | Object\[\]           | The response should be an array of validations.                                                                                                                                                                  |
+| \[\].row\_id       | Integer              | The row\_id with the warning or error.                                                                                                                                                                           |
+| \[\].column        | String               | The key of the template column where the validation should be displayed.                                                                                                                                         |
+| \[\].column\_index | Integer              | (Optional) The index of the column for this validation, based on the [columns](/docs/validation-webhook#columns-object) array provided in the JSON POST request body. Required if the column is a custom column. |
+| \[\].severity      | String               | Either "warning" (displayed in yellow) or "error" (displayed in red).                                                                                                                                            |
+| \[\].message       | String               | Message to be displayed to user when they click on the validation.                                                                                                                                               |
+| \[\].suggestion    | String \| String\[\] | (Optional) A suggestion or list of suggestions for a new value that will be displayed to the user. The user may choose whether or not to accept the suggested value.                                             |
+| \[\].options       | Object               | (Optional) Additional information related to the error. Keys may include:popover\_title: The title of the popover which appears when the user clicks an error or warning in OneSchema.                           |
+
+### Example JSON Response
+
+JSON
+
+`[
+  {
+    "row_id": 2,
+    "column": "employee_name",
+    "severity": "warning",
+    "message": "Employee no longer works for company."
+  },
+  {
+    "row_id": 2,
+    "column": "employee_end_date",
+    "severity": "error",
+    "message": "Employee gave notice on this date.",
+    "suggestion": "04/15/2020"
+  },
+  {
+    "row_id": 3,
+    "column": "employee_name",
+    "severity": "error",
+    "message": "Employee's name has changed",
+    "suggestion": ["Johnny Appleseed", "Johnny"]
+  }
+]
+`
+
+### Securing your validation hook
+
+To secure your validation hook, we can optionally authenticate requests using [HTTP Basic Auth](https://en.wikipedia.org/wiki/Basic%5Faccess%5Fauthentication). If a secret token is supplied, it will be used as the basic auth password in the request to the provided endpoint. No username is passed through.
+
+### Embedding
+
+When using webhooks with embedded OneSchema, the JWT token that was used to initialize the session will also be sent in the top-level key `embed_user_jwt`.
+
+### Retries
+
+If the webhook call times out after 30 seconds, or if the webhook returns a server error response code (5xx), OneSchema will retry the the call up to three times with exponential backoff. 
+
+A 408 (request timeout) or 429 (too many requests) code will also prompt OneSchema to retry.
+
+The `request_id` will be the same for every retry.
+
+### Validation hooks with custom columns
+
+Sometimes, even your custom columns require validation hooks. For example, you may have a `user` custom column that requires validation against your internal database when mapped against a sheet column. However, since custom columns can be mapped multiple times within the same sheet, additional information is required in the validation webhook JSON response in order to properly display validation errors and warnings.
+
+The POST request schema specifies an array of column mappings via the `columns` key. 
+
+#### Columns object
+
+| Parameter                | Type       | Description                                                              |
+| ------------------------ | ---------- | ------------------------------------------------------------------------ |
+| \[\]\*                   | Object\[\] | Ordered array of mappings.                                               |
+| sheet\_column\_name\*    | String     | The sheet column name of a specific mapping                              |
+| template\_column\_name\* | String     | The name of the template column this sheet column is mapped to.          |
+| template\_column\_key\*  | String     | The template column key this sheet column is mapped to.                  |
+| is\_custom               | Boolean    | (Optional) Whether this template column is a custom column.              |
+| custom\_column\_name     | String     | (Optional) The uploaded sheet column name for this mapped custom column. |
+
+#### Custom column values
+
+Like standard template columns, custom column values are also specified via the `rows` array provided in the POST request body. However, all custom column values will be grouped under a single umbrella object keyed by`$custom`. The `$custom` key specifies a mapping from `column_index` to sheet cell value. This allows you to disambiguate between multiple sheet columns which could be mapped to the same custom template column. 
+
+#### Example JSON POST with custom columns
+
+JSON
+
+`{
+  "rows": [
+    {
+      "row_id": 1,
+      "values": {
+        "business_vertical": "SaaS Sales",
+        "$custom": {
+          "3": LOW,
+          "4": LOW,
+        }
+      }
+    },
+    {
+      "row_id": 2,
+      "values": {
+        "business_vertical": "Sportswear",
+        "$custom": {
+          "3": HIGH,
+          "4": HIGH,
+        }
+      }
+    },
+    {
+      "row_id": 3,
+      "values": {
+        "business_vertical": "Shipping Infrastructure", 
+        "$custom": {
+          "3": LOW,
+          "4": HIGH,
+        }
+      }
+    },
+    {
+      "row_id": 4,
+      "values": {
+        "business_vertical": "Marketing",
+        "$custom": {
+          "3": HIGH,
+          "4": MED,
+        }
+      }
+    }
+  ],
+  "columns": [
+    {
+      "sheet_column_name": "Contact ID",
+      "template_column_name": "Contact ID",
+      "template_column_key": "contact_id"
+    },
+    {
+      "sheet_column_name": "Contact Name",
+      "template_column_name": "Contact Name",
+      "template_column_key": "contact_name"
+    },
+    {
+      "sheet_column_name": "Business Vertical",
+      "template_column_name": "Business Vertical",
+      "template_column_key": "business_vertical"
+    },
+    {
+      "sheet_column_name": "Secondary Priority",
+      "template_column_name": "Tier",
+      "template_column_key": "tier",
+      "is_custom": true,
+      "custom_column_name": "Secondary Priority"
+    },
+    {
+      "sheet_column_name": "Priority",
+      "template_column_name": "Tier",
+      "template_column_key": "tier",
+      "is_custom": true,
+      "custom_column_name": "Priority"
+    }
+  ],
+  "template_key": "contact-template",
+  "hook_id": 823,
+  "hook_name": "Hook 1",
+  "workspace_id": 23155,
+  "sheet_id": 23145,
+  "sheet_metadata": {
+    "original_file_name": "contacts.csv"
+  },
+  "embed_user_jwt": "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiI2N2JiMmU1Zi1mMGY3LTQyYTYtYTUxMS0xOGIyNWU2N2I4YzQiLCJ1c2VyX2asdasdasdasd.MaxfODdhWqVamNgK7l8mZrR-A4B2uGDuPWLOreu7dQI",
+  "request_id": "req_v85bd03e1-32aa-4600-8f9c-5ff0b0d206c5"
+}
+`
+
+As before, OneSchema will expect the endpoint to return an array of warnings and errors. In addition to specifying `row_id`, `column`, `severity`, and `message`, you must also provide a `column_index` in any errors for custom columns.
+
+#### Example JSON Response with custom columns
+
+JSON
+
+`[
+  {
+    "row_id": 2,
+    "column": "contact_name",
+    "severity": "warning",
+    "message": "Employee no longer works for company."
+  },
+  {
+    "row_id": 3,
+    "column": "tier",
+    "column_index": 3,
+    "severity": "error",
+    "message": "Mismatched priority levels."
+  },
+  {
+    "row_id": 4,
+    "column": "tier",
+    "column_index": 4,
+    "severity": "warning",
+    "message": "Specify priority as HIGH or LOW."
+  }
+]
+`

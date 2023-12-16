@@ -1,0 +1,106 @@
+---
+title: "Importing Custom Columns"
+description: "Columns of a specified data type for which a fixed header is not pre-defined in the template"
+---
+
+A [custom column](/docs/types-of-columns#custom-columns) is a column of a specified data type for which a fixed header is not pre-defined in the [template](/docs/templates). 
+
+This is useful when you expect an unknown number of columns of the specified data type. E.g. for a given custom column of data type _Number_, the uploaded spreadsheet may include columns _Inventory quantity_, _Days since last shipment_, _Number of shipment destinations_ which will all be mapped to data type _Number_.
+
+To add a custom column type, open your template, go to "Custom columns" in the left menu, and click "Add a custom column type":
+
+![Creating a custom column type](/images/6bf3bb5-Screenshot_2023-12-12_at_09.59.18.png) 
+
+## Example Use Case
+
+When uploading a contacts sheet, _Meeting Date 1_, _Meeting Date 2_, and _Meeting Date 3_ are examples of columns that need date formatting but were not planned for in the template ahead of time. These columns will show up as `Unmapped` during the mapping step of the import:
+
+![Creating a custom column type](/images/75f94df-Screenshot_2023-12-12_at_11.59.56.png) 
+
+Let's create a new custom column to accommodate those:
+
+![Creating a custom column type](/images/caf921a-Screenshot_2023-12-12_at_14.47.07.png) 
+
+Once the changes are pushed to Production, the end-users will be able to map _Meeting Date 1_, _Meeting Date 2_, and _Meeting Date 3_ to custom column `Meeting Date` (it shows up in the UI as `Data type`):
+
+![Creating a custom column type](/images/583873a-Screenshot_2023-12-12_at_12.00.32.png) 
+
+## How It Looks In JSON
+
+When you receive the validated data via JSON, a custom column is denoted in the `columns` array with the field `is_custom: true`. The values of a custom column are included as an object in a key called `$custom`.
+
+For instance, a JSON you receive from OneSchema may look something like this:
+
+JSON
+
+`{
+  "webhook_key": "primary",
+  "template_key": "contacts",
+	...
+  "columns": [
+    {
+      "sheet_column_name": "First Name",
+      "template_column_name": "First name",
+      "template_column_key": "first_name"
+    },
+    {
+      "sheet_column_name": "Last Name",
+      "template_column_name": "Last Name",
+      "template_column_key": "last_name"
+    },
+    {
+      "sheet_column_name": "Email",
+      "template_column_name": "email",
+      "template_column_key": "email"
+    },
+    {
+      "sheet_column_name": "Priority",
+      "template_column_name": "Tier",
+      "template_column_key": "tier",
+      "is_custom": true,
+      "custom_column_name": "Priority"
+    }
+  ],
+  "sequence_number": 1,
+  "sequence_count": 1,
+  "data": {
+    "count": 228,
+    "records": [
+      {
+        "last_name": "Goel",
+        "$custom": {
+          "3": "HIGH"
+        },
+        "first_name": "Aditi",
+        "email": "[[email protected]](/cdn-cgi/l/email-protection)"
+      }
+      ...
+    ],
+    "error_records": [
+      {
+        "data": {
+          "$custom": {
+            "3": "LOW"
+          },
+          "first_name": "Jack",
+          "last_name": "Mattson",
+          "email": "[[email protected]](/cdn-cgi/l/email-protection)"
+        },
+        "errors": {
+          "email": [
+            13
+          ],
+          "$custom": {
+            "3": [
+              1
+            ]
+          }
+        }
+      }
+      ...
+    ]
+  }
+}
+`
+
+In this example, "priority" is a custom column. It is the fourth column in the `columns` Array, so its index is 3\. The name given to this column by the user will be in the `custom_column_name` field of this column in the columns array.

@@ -1,0 +1,26 @@
+---
+title: "Multi-region hosting"
+---
+
+Data Residency refers to the physical/geographical storage location of an organization's data or information. OneSchema maintains separate production infrastructure in multiple regions, enabling customers to ensure all of their data is stored and processed in their preferred region. If you need data hosting outside of the US, please contact [\[email protected\]](/cdn-cgi/l/email-protection#1d6e7c71786e5d7273786e7e7578707c337e72).
+
+If you are an existing customer and you access your OneSchema account at a url like `<organization>.oneschema.co` then your data resides and is processed in the US. If you access your account at a url like `<organization>.eu.oneschema.co` then your data resides and is processed in the EU. Accounts cannot be automatically migrated from one region to the other once they have been created.
+
+**Supported regions**
+
+| Region           | Base URL                                                   |
+| ---------------- | ---------------------------------------------------------- |
+| United States    | [https://app.oneschema.co](https://app.oneschema.co)       |
+| Canada           | [https://app.ca.oneschema.co](https://app.ca.oneschema.co) |
+| Europe (Germany) | [https://app.eu.oneschema.co](https://app.eu.oneschema.co) |
+| Australia        | [https://app.au.oneschema.co](https://app.au.oneschema.co) |
+
+Data will be stored in the US by default. If you would like your data to be stored in a different region, please inform your sales contact of your wishes during onboarding.
+
+All of our infrastructure has feature parity. All regions offer a complete product experience. There are no features only available in a single region.
+
+If you are an existing customer and would like to change your data residency, please contact support to create a new account in the desired region. Historical data, such as import activity, cannot be transferred by any means, but Template data can be manually exported and re-imported into the new account.
+
+#### SDK Usage
+
+If you are a customer with multi-region hosting using the OneSchema SDK, there is one small change you need to make. If you are using the pure JavaScript SDK you must specify the [baseUrl](/docs/api-reference#baseurl) when creating an instance of the importer, and if you are using the React SDK you must specify the [baseUrl](/docs/api-reference#baseurl-1) prop when creating the `OneSchemaImporter` component.

@@ -1,0 +1,68 @@
+---
+title: "[Beta] AI Product Suite"
+description: "This document provides a list of questions and answers regarding OneSchema’s AI product suite, which is the only set of features that are currently powered by OpenAI. These features are turned off by default for all customers, and require explicit enablement to be activated."
+---
+
+## AI Product Features
+
+### AI-Suggested Mappings
+
+As part of the AI Product Suite, you will be able to enable smart mapping for template columns and for picklist values. These configurations can be toggled using either the Customizations Tab or `customizationOverrides` on importer launch. 
+
+![Customization for enablign AI-suggested mappings. Found in the Map Column portion of Importer customizations.](/images/4137c86-Screen_Shot_2023-07-24_at_10.19.15_AM.png)
+
+Customization for enabling AI-suggested mappings. Found in the Map Column portion of Importer customizations.
+
+#### Template Column Mapping
+
+Template Column mapping will occur automatically based on your specified mapping strategy, which can contain some combination of `"exact"`, `"fuzzy"`, and `"historical"`. Normally, any unmapped columns would then need to be manually mapped by your end user. With suggested mappings, however, users can elect for these unmapped columns to be mapped based on the remaining unmapped template columns and uploaded column names.
+
+Users will then be prompted to review the suggested mappings before continuing to the Review and Finalize step of the Importer.
+
+![](/images/171271c-Screen_Shot_2023-07-24_at_2.54.59_PM.png) 
+
+#### Suggested Picklist Mapping
+
+Similar to Suggested Column Mapping, users can leverage OneSchema AI to make intelligent mappings between sheet values to picklist values. This requires that an uploaded column is mapped to a Template Column of picklist datatype. This can be a great way to automatically and intelligently map values to their correct formats (eg. United States to a shorter picklist value of US).
+
+Users will be prompted to review the suggested picklist mappings before proceeding.
+
+![A star will appear next to mappings created using AI so users can easily verify mappings.](/images/e9536f8-Screen_Shot_2023-07-25_at_11.15.09_AM.png)
+
+A star will appear next to mappings created using AI so users can easily verify mappings.
+
+## OneSchema AI FAQs
+
+OneSchema will never turn on any AI product suite features for your account without your explicit permission. Our customer’s data security and privacy are our top priority. OneSchema has a DPA with OpenAI, and has not opted into OpenAI's API data sharing – your data is never used to train the OpenAI model.
+
+#### What does OneSchema’s AI product suite do?
+
+OneSchema’s AI product suite, powered by OpenAI’s GPT-4, sends uploaded spreadsheet data to OpenAI in order to suggest mappings and transformations to end users that help them clean the uploaded data.
+
+#### How do I access OneSchema’s AI product suite?
+
+Our AI product suite is turned off by default. Please contact your Customer Success Manager if you are interested in turning on this feature for your OneSchema account.
+
+#### Is the AI product suite available to EU customers?
+
+Not at this time. Our AI product suite runs on OpenAI's GPT-4, which currently processes and stores data in their US data center. Once OpenAI is able to bring this to EU data centers, we will inform EU customers that our AI product suite is available to be turned on. 
+
+#### Can I use AI Assist if my company signed a BAA with OneSchema?
+
+Not at this time. We are waiting for OpenAI to become HIPAA compliant in order to sign a BAA with them and offer the AI product suite to customers who have signed a BAA with us.
+
+#### Will my data be used by OpenAI to train their models?
+
+No, OneSchema has not opted into OpenAI's API data sharing – your data is never used to train the ChatGPT or the next version of GPT-4\. 
+
+#### What data is shared with OpenAI?
+
+For accounts where AI product suite features are enabled, CSV data that is uploaded into the OneSchema platform by customers is shared with OpenAI in order to suggest mappings and transformations to clean their files. This data is NOT used by OpenAI to train ChatGPT or the next version of GPT-4 – OneSchema has not opted into OpenAI's API data sharing. 
+
+#### What is our data retention policy with OpenAI?
+
+OpenAI retains data for 30 days, but will not use this for training data - it is retained for abuse and misuse monitoring purposes. Please see their API data usage policies for more information.
+
+#### Does my customer data interpreted in the AI product suite get used to train the model for other OneSchema customers?
+
+Not at this time. We may use data to improve the features for all customers in the future, but want to ensure this is implemented safely to ensure our customer's data privacy is protected.

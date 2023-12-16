@@ -1,0 +1,52 @@
+---
+title: "Validations"
+description: "Data cleaning rules"
+---
+
+#### Overview
+
+A validation is a pre-determined rule to which data must conform. It determines how data should be cleaned. Validations are applied to data to ensure the data meets specific requirements (business logic). A validation passes when the data complies with the rule, and fails when the data is in a form that is not acceptable. 
+
+Each cell in a column with a validation will be checked individually against the specified rules.
+
+#### Native validations
+
+OneSchema has a library of [native data validations](/docs/validation-types). These are no-code validations that can be applied with as little as one click. Examples include _Number_ to ensure the data imported only contains numbers and _Email_ which checks a string for valid email syntax.
+
+A list of OneSchemas data validation library can be found [here](/reference/template-resource#validation-types).
+
+#### Validation Webhook
+
+A validation webhook is a way to use an API endpoint to create a custom validator. OneSchema will pass data to a specified endpoint, and it can be validated against a database, a third party data source, or complex logic checks can be performed. OneSchema simply expects a response of errors and warnings.
+
+See our API [documentation on Validation Webhooks here](/docs/validation-webhook).
+
+#### Example
+
+##### Number
+
+A number validator specifies that the data contained in each cell of a column must be an integer between -5 and 24\. The validator does not allow commas.
+
+See the following data...
+
+| Data | Result                    |
+| ---- | ------------------------- |
+| 6    | Pass                      |
+| 3.7  | Fail, non-integer         |
+| \-6  | Fail, out of range        |
+| qw   | Fail, not a number        |
+| 7,5  | Fail, comma not permitted |
+
+##### Email
+
+An email validator ensures that each string is in valid email format. 
+
+See the following data...
+
+| Data                                                                                      | Result               |
+| ----------------------------------------------------------------------------------------- | -------------------- |
+| [\[email protected\]](/cdn-cgi/l/email-protection#abc3cec7c7c4ebc4c5ced8c8c3cec6ca85c8c4) | Pass                 |
+| hello@@oneschema.co                                                                       | Fail, double @       |
+| hello@oneschemaco                                                                         | Fail, missing .      |
+| hellooneschema.co                                                                         | Fail, missing @      |
+| email me here                                                                             | Fail... in many ways |

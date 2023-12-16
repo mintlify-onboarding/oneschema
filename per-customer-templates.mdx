@@ -1,0 +1,85 @@
+---
+title: "Per-customer template overrides"
+---
+
+## Overview
+
+[Template overrides](/docs/per-customer-overrides-v2#template-overrides) allow a template to be programmatically modified at runtime via an SDK parameter. 
+
+Template overrides are often used to... 
+
+* Surface slightly different template variations based on a specific user
+* Allow the user to configure their own templates outside of OneSchema (i.e. select which columns they plan to upload or to create new data types within your application)
+
+## Important functionality to note
+
+* Overridden templates are only modified for a particular session and are not saved.
+* A template can be used in many concurrent sessions, each with their own override (if desired).
+
+## Example
+
+Acme Inc allows their customers to import a list of products via their products template (template key: `products`). The products template has the following attributes...
+
+| Column label  | Column key     | Data type        |
+| ------------- | -------------- | ---------------- |
+| Product name  | product\_name  | String           |
+| Size          | size           | Picklist (S,M,L) |
+| Product price | product\_price | Money (USD)      |
+| Shipping fee  | shipping\_fee  | Money (USD)      |
+
+Acme's customer, Green Plants, wants to import slightly different fields. They want to...
+
+* Include an additional attribute for the product description
+* Change the size picklist `S`, `M`, and `L` values to be `Seedling`, `Still growing`, and `Fully grown`.
+* Remove the shipping fee (Green Plants does not ship their products)
+
+Green Plants logs into Acme's system and makes modifications to the product attributes associated with their account. Next time they perform an import, Acme, having an understanding of Green Plants' custom fields, programmatically overrides the template at runtime with the changed fields using the SDK parameter `templateOverrides`. 
+
+JavaScript
+
+`const importer = oneSchemaImporter({
+  clientId: "CLIENT_ID",
+  userJwt: "USER_JWT",
+  templateKey: "products",
+  templateOverrides: {
+    columns_to_add: [
+      {
+        key: "product_description",
+        label: "Product description",
+        data_type: "TEXT",
+        is_required: false
+      }
+    ],
+    columns_to_update: [
+      {
+        key: "size",
+        validation_options: {
+         picklist_options: [
+           {
+             value: "Seedling", 
+             color: "ColorSelectorPurple100",
+             alternative_names: ["Sprout"],
+             description: "A seedling is any young plant that has not yet been transported. Also known as a sprout."
+           },
+           {
+             value:"Still growing", 
+             color:"#FFAA00",
+           },
+           {
+             value:"Fully grown",
+             color:"ColorSelectorGreen100"
+           }
+         ]
+        },
+      }
+    ],
+    columns_to_remove: [
+      { 
+        key: "shipping_fee",
+      },
+    ]
+  },
+})
+`
+
+The overridden template is only shown to Green Plants and the main products template is unchanged. The template can be used by Acme's customers simultaneously.

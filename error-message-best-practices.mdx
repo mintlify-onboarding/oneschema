@@ -1,0 +1,15 @@
+---
+title: "Writing user-friendly error messages"
+---
+
+Custom error messages can be written when custom regex, code hooks, or webhooks are used. 
+
+A user's ability to correct errors is only as good as the direction given. No one likes to see confusing, non-descriptive pop-ups such as: _Error: bad data_, _Internal server error_, or _Improper formatting_. 
+
+To ensure users performing imports understand how to resolve erroneous data, keep the following in mind when writing error messages:
+
+1. **Be clear about why their data is not correct and how they can correct it**. _Incorrect date_ tells the user what went wrong, while _Date must be in the format YYYY-MM-DD_ tells the user something is wrong and how to resolve the issue.
+2. **Use phrases everyone can understand**. _Date must be in the format YYYY-MM-DD_ is much easier to work with than _Error 602_.
+3. **Keep it short**. It's more likely a user will read the entire message and understand the issue if over-communication and redundancies are avoided.
+4. **Avoid negativity**. Don't blame the user for the issue with phrases like _You didn't enter a valid date_. Replace negativity with direction such as _Please write dates in YYYY-MM-DD format_.
+5. **Avoid the caps**. DO YOU LIKE BEING YELLED AT? Caps are hard to read and give the impression of shouting. Stick with proper sentence capitalization.

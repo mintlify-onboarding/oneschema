@@ -1,0 +1,574 @@
+---
+title: "JavaScript"
+---
+
+[![](https://img.shields.io/npm/v/@oneschema/importer)](https://www.npmjs.com/package/@oneschema/importer)
+
+## Getting Started
+
+The OneSchema Importer package contains JavaScript utilities to help embed OneSchema into your application
+
+### Installation
+
+You can install this package with npm:
+
+Bash
+
+`npm i --save @oneschema/importer
+`
+
+or with a script tag:
+
+HTML
+
+`<script src="https://d3ah8o189k1llu.cloudfront.net/oneschema-importer-latest.min.js"></script>
+`
+
+### Sample usage
+
+JavaScript
+
+`import oneschemaImporter from "@oneschema/importer"
+
+const importer = oneschemaImporter({
+  /* required here */
+  clientId: 'YOUR_CLIENT_ID',
+  /* required here or at launch */
+  templateKey: 'YOUR_TEMPLATE_KEY',
+  userJwt: 'YOUR_USER_JWT',
+  /* optional */
+  importConfig: { type: "local" },
+  devMode: true,
+  className: 'oneschema-importer',
+  styles: {
+     position: 'fixed',
+     top: '0',
+     left: '0',
+     width: '100vw',
+     height: '100vh',
+     zIndex: '1000',   
+  }
+})
+
+importer.launch()
+// OR
+// pass overrides and values not specified at creation time:
+importer.launch({
+  templateKey: 'YOUR_TEMPLATE_KEY',
+  userJwt: 'YOUR_USER_JWT',
+  importConfig: { type: "local" }
+})
+
+importer.on("success", (data) => {
+  // handle success
+})
+
+importer.on("cancel", () => {
+  // handle cancel
+})
+
+importer.on("error", (error) => {
+  // handle error
+})
+`
+
+### Advanced usage
+
+#### Using session tokens from API
+
+You can [start an embedding session via API](/docs/initialize-importer-through-api) and then use in the session token during init and using `launch`
+
+JavaScript
+
+`import oneschemaImporter from "@oneschema/importer"
+
+const importer = oneschemaImporter({
+  clientId: clientId,
+  sessionToken: token,
+})
+
+importer.launch()
+
+importer.on("success", (data) => {
+  // handle success
+})
+
+importer.on("cancel", () => {
+  // handle cancel
+})
+
+importer.on("error", (error) => {
+  // handle error
+})
+`
+
+#### Using session tokens from SDK
+
+The [launched event](/docs/javascript#launched-event) will emit a session token which can be used to resume a session. By default, OneSchema will save the session token and resume in case the session was not closed through normal means (usually the browser closing or refreshing). It will not resume if the user cancels the session or if it ends. This behavior is done through the [saveSession](/docs/javascript#savesession) param.
+
+If you would like to manually resume a session, you can save the session token from the launched event and then later pass it into an importer session at launch. Once a session is complete (through success, error, or cancel), it should no longer be used to init.
+
+The following code snippet shows how you can save the session token to a variable and use later. Consider also saving to something more persistent, like browser storage.
+
+JavaScript
+
+`importer.launch()
+
+let sessionToken = null;
+
+importer.on("launched", (data) => {
+  sessionToken = data.sessionToken
+})
+
+// ... later!
+
+importer.launch({ 
+  sessionToken,
+})
+`
+
+  
+## API Reference
+
+### Table of Contents
+
+* [oneschemaImporter Function (default export)](#oneschemaimporter-function-default-export)
+* [OneSchemaError](#oneschemaerror)
+* [OneSchemaErrorSeverity](#oneschemaerrorseverity)
+* [OneSchemaImporterClass](#oneschemaimporterclass)
+* [OneSchemaParams](#oneschemaparams)
+* [OneSchemaLaunchParams](#oneschemalaunchparams)
+* [OneSchemaLaunchSessionParams](#oneschemalaunchsessionparams)
+* [OneSchemaLaunchTemplateGroupParams](/docs/javascript#oneschemalaunchtemplategroupparams)
+* [OneSchemaLaunchStatus](#oneschemalaunchstatus)
+* [OneSchemaLaunchError](#oneschemalauncherror)
+* [ImportConfig](/docs/javascript#importconfig-1)
+  
+---
+
+## oneschemaImporter Function (default export)
+
+The default export of the package is a function which will return a [OneSchemaImporterClass](#oneschemaimporterclass).
+
+Sample usage:
+
+JavaScript
+
+`import oneschemaImporter from "@oneschema/importer"
+
+const importer = oneschemaImporter(params)
+`
+
+#### params
+
+| **Required** |                                              |
+| ------------ | -------------------------------------------- |
+| Type         | Object ([OneSchemaParams](#oneschemaparams)) |
+| Description  | The parameters given at initialization       |
+
+  
+---
+
+## OneSchemaError
+
+This represents an error that's happened in the importer.
+
+### message
+
+| **Required** |        |
+| ------------ | ------ |
+| Type         | string |
+
+### severity
+
+| **Required** |                                                          |
+| ------------ | -------------------------------------------------------- |
+| Type         | enum ([OneSchemaErrorSeverity](#oneschemaerrorseverity)) |
+
+  
+---
+
+## OneSchemaErrorSeverity
+
+### values
+
+| Error | "error" |
+| ----- | ------- |
+| Fatal | "fatal" |
+
+  
+---
+
+## OneSchemaImporterClass
+
+The OneSchemaImporterClass is used to integrate OneSchema into your application. It inherits from the [EventEmitter class](https://nodejs.org/api/events.html#class-eventemitter) to emit events that happen in OneSchema.
+
+Sample usage:
+
+JavaScript
+
+`importer.launch(params)
+
+importer.close(clean)
+
+importer.on('success', (data) => {
+  console.log(data)
+})
+
+importer.on('cancel', () => {
+  console.log('OneSchema embed flow cancelled')
+})
+
+importer.on('error', (message) => {
+  console.log(message)
+})
+`
+
+### launch(params?)
+
+The launch function will show the OneSchema iframe and begin an importing session. Optionally, pass in params as overrides or that were not given during initialization.
+
+Returns an [OneSchemaLaunchStatus](#oneschemalaunchstatus) object with launch status
+
+#### params
+
+| Optional    |                                                                                                                                    |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Type        | Object ([OneSchemaLaunchParams](#oneschemalaunchparams)) or Object ([OneSchemaLaunchSessionParams](#oneschemalaunchsessionparams)) |
+| Description | The parameters that can be passed to the launch function                                                                           |
+
+### close(clean = false)
+
+The close function will hide the OneSchema iframe from view.
+
+#### clean
+
+| Optional    |                                                                                                   |
+| ----------- | ------------------------------------------------------------------------------------------------- |
+| Type        | boolean                                                                                           |
+| Description | If true, will remove and clean up all listeners and remove the iframe from DOM. By default, false |
+
+### setClassName(className)
+
+#### className
+
+| **Required** |                                                                         |
+| ------------ | ----------------------------------------------------------------------- |
+| Type         | string                                                                  |
+| Description  | The CSS class that should be set on the iframe. Replaces existing value |
+
+### setStyles(styles)
+
+#### styles
+
+| **Required** |                                                                           |
+| ------------ | ------------------------------------------------------------------------- |
+| Type         | Object (CSSStyleDeclaration)                                              |
+| Description  | The CSS styles that should be set on the iframe. Replaces existing values |
+
+### setParent(parent)
+
+#### parent
+
+| **Required** |                                                                                                                                               |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Type         | HTMLElement                                                                                                                                   |
+| Description  | The HTML Element the iframe should be appended to. When called, the iframe will move in the DOM. This will cause the iframe's page to reload. |
+
+### setIframe(iframe)
+
+#### iframe
+
+| **Required** |                                                                                                                                                                                  |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Type         | HTMLIFrameElement                                                                                                                                                                |
+| Description  | The iframe the class should manage. This will set the URL and event listeners for this iframe. This should be used with the OneSchemaParam [manageDom](#managedom) set to false. |
+
+### success Event
+
+The success event will fire when the import is complete. The parameter to the callback will include the data that has been imported for "local" imports. The format of the data is [documented here](/docs/importing-validated-data#sample-json-object). 
+
+For webhook imports, the result will be an object with `eventId` and `responses`:
+
+The `eventId` field will contain a string identifier that was included in the webhook requests. You can use this to associate the user’s session with the requests sent to your webhook. (You could also use the user JWT, which is also sent with the webhook requests, to do this.)
+
+The `responses` field returns the bodies of the responses sent by your webhook endpoint. It is entirely fine to return nothing at all — you can return whatever data you’d like here. It will be array of objects with a `body` field containing the response, and a sequenceNumber field that indicates which request returned that response. Once this data is sent to your app you can use it however you want to guide the rest of the user’s import process.
+
+### cancel Event
+
+The cancel event will fire when the import is cancelled. 
+
+### error Event
+
+The error event will fire when an error occurs during the import. The parameter to the callback will be a [OneSchemaError](#oneschemaerror).
+
+### launched Event
+
+The launched event will fire when the iframe is ready to display. This will happen shortly after [launch](/docs/javascript#launchparams) is called. The event data will include a field named `sessionToken` which can be used to resume a session manually.
+
+  
+---
+
+## OneSchemaParams
+
+OneSchemaParams also includes one of [OneSchemaLaunchParams](#oneschemalaunchparams), [OneSchemaLaunchSessionParams](#oneschemalaunchsessionparams), or [OneSchemaLaunchTemplateGroupParams](#oneschemalaunchtemplategroupparams) so that you can include any of the launch params.
+
+### clientId
+
+| **Required** |                                                 |
+| ------------ | ----------------------------------------------- |
+| Type         | string                                          |
+| Description  | Importer client Id from the OneSchema dashboard |
+
+### baseUrl
+
+| Optional    |                                                                                                        |
+| ----------- | ------------------------------------------------------------------------------------------------------ |
+| Type        | string                                                                                                 |
+| Description | If you are a customer with multi-region hosting, set this to <https://embed.\[region\].oneschema.co\>. |
+
+### className
+
+| Optional    |                                                                          |
+| ----------- | ------------------------------------------------------------------------ |
+| Type        | string                                                                   |
+| Description | CSS class which will be set on the iframe. Defaults to: oneschema-iframe |
+
+### parentId
+
+| Optional    |                                                                                                   |
+| ----------- | ------------------------------------------------------------------------------------------------- |
+| Type        | string                                                                                            |
+| Description | HTML Id tag for an element the iframe should be appended to. By default, appends to document.body |
+
+### styles
+
+| Optional    |                                             |
+| ----------- | ------------------------------------------- |
+| Type        | Object (CSSStyleDeclaration)                |
+| Description | CSS styles which will be set on the iframe. |
+
+### devMode
+
+| Optional    |                                                                                                                                                        |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Type        | boolean                                                                                                                                                |
+| Description | Whether OneSchema should be in developer mode. Defaults to reading process.env.NODE\_ENV and will be false if NODE\_ENV is production, otherwise true. |
+
+### languageCode
+
+| Optional    |                                                                                                                                                                                                                                                           |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Type        | string                                                                                                                                                                                                                                                    |
+| Description | Optional language code (like 'en' or 'zh') to force importer language. By default, will use user's set language. Requires enterprise licensing[Supported languages documented here](/docs/translate-importer-into-different-language#supported-languages) |
+
+### autoClose
+
+| Optional    |                                                                                                    |
+| ----------- | -------------------------------------------------------------------------------------------------- |
+| Type        | boolean                                                                                            |
+| Description | Whether the iframe should automatically hide when completion events are emitted. Defaults to true. |
+
+### saveSession
+
+| Optional    |                                                                                                                                                                                                                                                                                |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Type        | boolean                                                                                                                                                                                                                                                                        |
+| Description | Whether the SDK should save session information to browser storage so that an import can be resumed (if someone closes the browser and returns). The session is saved based on the JWT and template key. This will not save the session if it is 'cancelled'.Defaults to true. |
+
+### manageDOM
+
+| Optional    |                                                                                                                                                                                                        |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Type        | boolean                                                                                                                                                                                                |
+| Description | Whether the class should create and append an iframe to the DOM. If false, you will need to make an iframe and pass the reference to the class via setIframe so that it can be used. Defaults to true. |
+
+  
+---
+
+## OneSchemaLaunchParams
+
+These values can be passed into the `launch` function or with the [OneSchemaParams](#oneschemaparams) at initialization
+
+### userJwt
+
+| **Required** |                                                                                                                                                               |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Type         | string                                                                                                                                                        |
+| Description  | The JWT to be used for authentication. See [generating a secure JSON Web token for a user](/docs/generating-jwts) for more information about setting up a JWT |
+
+### templateKey
+
+| **Required** |                                                                                                                                                                             |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Type         | string                                                                                                                                                                      |
+| Description  | The key for the template that should be used in the import. See [Creating and Editing Templates](/docs/creating-and-editing-templates) for more information about templates |
+
+### customizationKey
+
+| Optional    |                                                                                                                                                                                                  |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Type        | string                                                                                                                                                                                           |
+| Description | Key for the customization that has been created in the dashboard to be used with this importer. See [Multiple Customizations](/docs/customizations#multiple-customizations) for more information |
+
+### customizationOverrides
+
+| Optional    |                                                                       |
+| ----------- | --------------------------------------------------------------------- |
+| Type        | OneSchemaCustomization (See [Customizations](/docs/customizations))   |
+| Description | Values that will override the saved customization from your dashboard |
+
+### templateOverrides
+
+| Optional    |                                                                                                  |
+| ----------- | ------------------------------------------------------------------------------------------------ |
+| Type        | OneSchemaTemplateOverrides (See [Templates](/docs/per-customer-overrides-v2))                    |
+| Description | Values that will override the saved template and template columns to be used with this importer. |
+
+### importConfig
+
+| Optional    |                                                                                                                                              |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Type        | Object ([ImportConfig](#importconfig-1))                                                                                                     |
+| Description | Configuration for how data will be imported out of OneSchema when the import is complete. If not specified, will be a full LocalImportConfig |
+
+### eventWebhookKeys
+
+| Optional    |                                                                                                                                                   |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Type        | string\[\]                                                                                                                                        |
+| Description | An array of strings for event webhooks to be triggered during the import. For more information, see [Using Event Webhooks](/docs/event-webhooks). |
+
+  
+---
+
+## OneSchemaLaunchSessionParams
+
+These values can be passed into the `launch` function or with the [OneSchemaParams](#oneschemaparams) at initialization
+
+### sessionToken
+
+| **Required** |                                                                                                                                                                    |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Type         | string                                                                                                                                                             |
+| Description  | Unique string key which identifies the configuration that the OneSchema importer should initialize as. To be used when initializing the importer via external API. |
+
+### config
+
+| Optional    |                                              |
+| ----------- | -------------------------------------------- |
+| Type        | Object ([OneSchemaConfig](#oneschemaconfig)) |
+| Description | Config for OneSchema importing behavior      |
+
+  
+---
+
+## OneSchemaLaunchTemplateGroupParams
+
+These values can be passed into the `launch` function or with the [OneSchemaParams](#oneschemaparams) at initialization
+
+### templateGroupKey
+
+| **Required** |                                                                                                                                                                                  |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Type         | string                                                                                                                                                                           |
+| Description  | The key for the template group that should be used in the import. See [Importing Multisheet Excel](/docs/importing-multisheet-excel) for more information about template groups. |
+
+  
+---
+
+## OneSchemaLaunchStatus
+
+### success
+
+| **Required** |                                          |
+| ------------ | ---------------------------------------- |
+| Type         | boolean                                  |
+| Description  | Whether the launch was successful or not |
+
+### error
+
+| Optional    |                                                                |
+| ----------- | -------------------------------------------------------------- |
+| Type        | enum ([OneSchemaLaunchError](#oneschemalauncherror))           |
+| Description | If success is false, will be included with enum value of error |
+
+  
+---
+
+## OneSchemaLaunchError
+
+### values
+
+| MissingTemplate     | templateKey was not passed in at init or launch  |
+| ------------------- | ------------------------------------------------ |
+| MissingJwt          | userJwt was not passed in at init or launch      |
+| MissingSessionToken | sessionToken was not passed in at init or launch |
+
+  
+---
+
+## ImportConfig
+
+Configuration for how data will be imported out of OneSchema when the import is complete. 
+
+An import config is one of the following types:
+
+### LocalImportConfig
+
+#### type
+
+| **Required** |         |
+| ------------ | ------- |
+| Type         | "local" |
+
+#### metadataOnly
+
+| Optional    |                                                                                                                                                                     |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Type        | boolean                                                                                                                                                             |
+| Description | Whether the import should only include metadata. This can then be used inconjuction with the API to get data. If false, all row data will be included in the import |
+
+### WebhookImportConfig
+
+#### type
+
+| **Required** |           |
+| ------------ | --------- |
+| Type         | "webhook" |
+
+#### key
+
+| **Required** |                                                                                                              |
+| ------------ | ------------------------------------------------------------------------------------------------------------ |
+| Type         | string                                                                                                       |
+| Description  | The webhook key which has been setup inside OneSchema the data should be sent to when the import is complete |
+
+### FileUploadImportConfig
+
+#### type
+
+| **Required** |               |
+| ------------ | ------------- |
+| Type         | "file-upload" |
+
+#### url
+
+| **Required** |                                                |
+| ------------ | ---------------------------------------------- |
+| Type         | string                                         |
+| Description  | The signed url that the file should be sent to |
+
+#### format
+
+| Optional    |                                                         |
+| ----------- | ------------------------------------------------------- |
+| Type        | string ("csv" \| "json")                                |
+| Description | The type of file that should be sent. Defaults to "csv" |
+
+#### headers
+
+| Optional    |                                                                                                                                                                 |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Type        | Object { \[key: string\] : string }                                                                                                                             |
+| Description | Request headers that should be sent on the PUT request. Header names should not contain underscores and should be all lowercase. Header values must be strings. |

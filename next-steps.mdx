@@ -1,0 +1,34 @@
+---
+title: "Next Steps"
+description: "Advanced workflows common across our customers and where to find more information"
+---
+
+You have successfully embedded OneSchema's Importer and now have a function CSV ingestion flow, great work! If you're wondering how to setup some more complex workflows, you came to the right place! See below for common workflows our customers set up next. 
+
+## Custom validations
+
+### External validations
+
+If you need to check data during the import process against your database or a third party data source, check out [Validating Against External Sources](/docs/validation-webhook). A JSON call is made to an endpoint you host with the relevant data, you run checks on your backend, and simply send a formatted response back to OneSchema indicating if there are any issues (see the two JSON snippets on the linked page for a quick understanding). 
+
+### Custom business logic
+
+If you don't need to check against an external source (or do need to check against and external source _and_ automatically transform the data on the sheet so your end-user sees the changes), take a look at [Code Hooks](/docs/code-hooks-2). Code Hooks offer a way to write custom business logic on OneSchema's frontend in JavaScript which will be run during the import process. 
+
+While Code Hooks can make external calls, we recommend using [Validaiton Webhooks](/docs/validation-webhook) (referenced above) if a transformation is not required. If transformations _are_ required but the end-user does not need to see and approve the results, we recommend making the transforms post-OneSchema import (the less you modify, the less confusing for the user). 
+
+## Different input columns per-customer
+
+If you need to change the input rules for a given data type on a per-customer basis (i.e. each customer will import a _contacts_ file with very different columns), [Using per-customer template overrides](/docs/per-customer-templates) is what you're after. Template overrides allow you to programmatically edit a OneSchema template via an SDK parameter. Columns can be added, removed, and updated. 
+
+A single template can be overridden and used concurrently in multiple Importer sessions. Technically templates are overridden on a per-session basis, but most of our users think about them as a "per-customer adjustment". 
+
+## Validating against another sheet
+
+If a complete import consists of multiple sheets with related data, [Validating Relational Data](/docs/validating-relational-data) goes into more detail on the workflow. 
+
+## Importing data via API
+
+If you need to begin the data import process outside of OneSchema (i.e. a user does not drag+drop their file into the modal), you can use OneSchema Headless to [Upload files via API](/docs/initialize-importer-through-api). OneSchema Headless can also perform the header selection and mapping via API.
+
+OneSchema Headless is perfect for updates workflows where an end-user needs to edit pre-existing data.

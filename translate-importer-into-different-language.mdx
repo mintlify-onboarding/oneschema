@@ -1,0 +1,88 @@
+---
+title: "Configuring Internationalization"
+---
+
+OneSchema supports internationalization of the importer in many different languages. This feature is only supported with enterprise licensing.
+
+To use internationalization use the [languageCode](/docs/javascript#languagecode) param when initializing your SDK instance.
+
+JavascriptReactAngular
+
+`import oneschemaImporter from "@oneschema/importer"
+
+const importer = oneschemaImporter({
+  clientID: 'YOUR_CLIENT_ID',
+  templateKey: 'YOUR_TEMPLATE_KEY',
+  userJwt: 'YOUR_USER_JWT',
+  
+  // language code here!
+  languageCode: "en",
+})
+`
+
+`import React, { useState } from "react"
+import OneSchemaImporter from "@oneschema/react"
+
+function OneSchemaExample() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  const handleData = (data) => {
+    console.log(data)
+  }
+
+  return (
+    <div>
+      <button onClick={() => setIsOpen(true)}>Import</button>
+
+      <OneSchemaImporter
+        isOpen={isOpen}
+        onRequestClose={() => setIsOpen(false)}
+        clientId={clientId}
+        userJwt={token}
+        templateKey={templateKey}
+       
+
+        /* language code here!  */
+        languageCode="en"
+      />
+    </div>
+  )
+}
+`
+
+`// Import the module into the application, with configuration
+    OneSchemaModule.forRoot({
+      clientId: 'CLIENT_ID',
+      templateKey: 'TEMPLATE_KEY',
+      userJwt: 'USER_JWT',
+      
+      
+      // language code here!
+      languageCode: 'en',
+    }),
+`
+
+## Supported languages
+
+| Language             | languageCode |
+| -------------------- | ------------ |
+| English              | en           |
+| Arabic               | ar           |
+| Chinese (Simplified) | zh           |
+| Czech                | cs           |
+| Danish               | da           |
+| Dutch                | nl           |
+| Finnish              | fi           |
+| French               | fr           |
+| German               | de           |
+| Hungarian            | hu           |
+| Italian              | it           |
+| Japanese             | jp           |
+| Korean               | ko           |
+| Norwegian            | no           |
+| Polish               | pl           |
+| Portuguese           | pt           |
+| Romanian             | ro           |
+| Russian              | ru           |
+| Spanish              | es           |
+| Swedish              | sv           |

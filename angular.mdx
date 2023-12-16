@@ -1,0 +1,198 @@
+---
+title: "Angular"
+---
+
+[![](https://img.shields.io/npm/v/@oneschema/angular)](https://www.npmjs.com/package/@oneschema/angular)
+
+## Getting Started
+
+The OneSchema Angular package contains an Angular module to help embed OneSchema into your application
+
+### Installation
+
+You can install this package with npm:
+
+Bash
+
+`npm i --save @oneschema/angular @oneschema/importer
+`
+
+### Sample usage
+
+To use the package, add the OneSchemaModule to your module:
+
+JavaScript
+
+`import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+import { AppComponent } from './app.component';
+
+// Import the module from the OneSchema package
+import { OneSchemaModule } from '@oneschema/angular';
+
+@NgModule({
+  declarations: [AppComponent],
+  imports: [
+    BrowserModule,
+
+    // Import the module into the application, with configuration
+    OneSchemaModule.forRoot({
+      clientId: 'CLIENT_ID',
+      templateKey: 'TEMPLATE_KEY',
+      userJwt: 'USER_JWT',
+      styles: {
+         position: 'fixed',
+         top: '0',
+         left: '0',
+         width: '100vw',
+         height: '100vh',
+         zIndex: 1000,
+      }
+    }),
+  ],
+
+  bootstrap: [AppComponent],
+})
+export class AppModule {}
+`
+
+Then, you can test the module with the included OneSchema button component:
+
+JavaScript
+
+`<lib-oneschema-button></lib-oneschema-button>
+`
+
+Or make your own component using the OneSchema service:
+
+JavaScript
+
+`` import { Component } from '@angular/core'
+import { OneSchemaService } from './oneschema.service'
+
+@Component({
+  selector: 'oneschema-button',
+  template: `<button (click)="launch()">Open OneSchema</button>`,
+  styles: [],
+})
+export class OneSchemaButton implements OnDestroy {
+  constructor(public oneschema: OneSchemaService) {
+    this.oneschema.on('success', this.onSuccess)
+    this.oneschema.on('error', this.onError)
+    this.oneschema.on('cancel', this.onCancel)
+  }
+
+  launch() {
+    this.oneschema.launch()
+  }
+
+  onSuccess(data: any) {
+    // handle success
+  }
+
+  onError(message: string) {
+    // handle error
+  }
+
+  onCancel() {
+    // handle cancel
+  }
+
+  ngOnDestroy() {
+    this.oneschema.off('success', this.onSuccess)
+    this.oneschema.off('error', this.onError)
+    this.oneschema.off('cancel', this.onCancel)
+  }
+}
+ ``
+
+To style the iframe, either pass in `styles` prop to the module, add CSS to your global stylesheet, or to a component with [ViewEncapsulation.None](https://angular.io/guide/view-encapsulation). The iframe's class will be what is passed to the module as the `className` prop or `oneschema-iframe` by default. Sample CSS for the iframe to take up the full viewport is:
+
+CSS
+
+`.oneschema-iframe {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+}
+`
+
+### Advanced usage
+
+#### Custom iframe
+
+To manage the iframe inside your application, pass `manageDOM` option as false to the OneSchemaModule and then create an iframe component:
+
+JavaScript
+
+`` import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core'
+import { OneSchemaService } from '@oneschema/angular'
+
+@Component({
+  selector: 'oneschema-iframe',
+  template: ` <iframe #oneschema></iframe>`,
+  styles: [
+    `
+      iframe {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+      }
+    `,
+  ],
+})
+export class OneSchemaIframe implements AfterViewInit {
+  @ViewChild('oneschema') iframe?: ElementRef<HTMLIFrameElement>
+
+  constructor(public oneschema: OneSchemaService) {}
+
+  ngAfterViewInit() {
+    this.oneschema.setIframe(this.iframe!.nativeElement)
+  }
+}
+ ``
+
+  
+## API Reference
+
+### Table of Contents
+
+* [OneSchemaModule](#oneschemamodule)
+* [OneSchemaService](#oneschemaservice)
+* [OneSchemaButton](#oneschemabutton)
+
+---
+
+## OneSchemaModule
+
+The OneSchemaModule provides access to the OneSchemaService and OneSchemaButton. It uses the [singleton forRoot pattern](https://angular.io/guide/singleton-services#the-forroot-pattern) to setup the service. It accepts one object of params for the service as parameters
+
+#### params
+
+| **Required** |                                                              |
+| ------------ | ------------------------------------------------------------ |
+| Type         | Object ([OneSchemaParams](/docs/javascript#oneschemaparams)) |
+| Description  | The parameters given to OneSchemaModule at initialization    |
+
+  
+---
+
+## OneSchemaService
+
+The OneSchemaService is provided by the OneSchemaModule. It is an instance of the [OneSchemaImporterClass](/docs/javascript#oneschemaimporterclass).
+
+  
+---
+
+## OneSchemaButton
+
+The OneSchemaButton is a sample component which includes a button that will open the OneSchema importer. To include use this in your template:
+
+JavaScript
+
+`<lib-oneschema-button></lib-oneschema-button>
+`

@@ -1,0 +1,24 @@
+---
+title: "Data retention policies"
+description: "Revised May 2022"
+---
+
+## Data retention policies
+
+#### Importer
+
+PII uploaded via OneSchema Embedded Importer is automatically deleted after seven (7) days by default, but can be configured to as long as forever or as little as one (1) hour. Progress is retained for users who abandon their importer session, but return to complete the upload at a later date. The import must be completed within the post-upload retention period.
+
+Alternatively, PII can be deleted faster via an API call; docs can be [found here](/docs/importer-embedding#deleting-embed-user-data) under “Deleting embed user data”.
+
+#### Workspaces
+
+PII uploaded via OneSchema Workspaces is retained indefinitely unless action is taken. Files and workspaces can both be deleted via OneSchema’s graphical user interface. Deleting a workspace will also delete all individually contained files.
+
+Alternatively, workspaces can be deleted via an API call; docs can be [found here](/reference/delete-a-workspace) 
+
+#### Data Security
+
+OneSchema is a data processor and data security is always our first consideration. We are SOC 2 Type II and GDPR compliant. Data is hosted with AWS and Amazon’s Virtual Private Cloud is used to protect our network perimeter in addition to web application firewalls and regular vulnerability scanning. We conduct rigorous penetration tests with independent security consulting firms to ensure the highest levels of data security.
+
+You can learn more at our [main security page](https://www.oneschema.co/security).

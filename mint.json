@@ -1,0 +1,65 @@
+{
+    "name": "OneSchema",
+    "logo": {
+      "light": "/logo/light.png",
+      "dark": "/logo/dark.png"
+    },
+    "favicon": "/favicon.png",
+    "colors": {
+      "primary": "#2962FF",
+      "light": "#5C87FF",
+      "dark": "#2962FF"
+    },
+    "tabs": [
+        {
+            "name": "API Reference",
+            "url": "api-reference"
+        }
+    ],
+    "topbarCtaButton": {
+      "name": "Sign In",
+      "url": "https://app.oneschema.co/login"
+    },
+    "anchors": [
+      {
+        "name": "Security",
+        "icon": "lock",
+        "url": "https://www.oneschema.co/security"
+      },
+      {
+        "name": "Contact",
+        "icon": "mailbox-flag-up",
+        "url": "mailto:support@oneschema.co"
+      },
+      {
+        "name": "Blog",
+        "icon": "newspaper",
+        "url": "https://www.oneschema.co/blog"
+      }
+    ],
+    "navigation": [
+        {
+            "group": "Setup",
+            "pages": [
+              "getting-started",
+              "creating-and-editing-templates",
+              "quickstart-embedding-with-the-sdk",
+              "customizations",
+              "importing-validated-data",
+              "generating-jwts",
+              "next-steps"
+            ]
+        },
+        {
+            "group": "Resource",
+            "pages": [
+                "api-reference/import-a-template-as-json"
+            ]
+        }
+    ],
+    "footerSocials":
+      {
+          "twitter": "https://twitter.com/oneschema_co?lang=en",
+          "linkedin": "https://www.linkedin.com/company/oneschema/"
+      }
+  }

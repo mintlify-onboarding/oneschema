@@ -1,0 +1,26 @@
+---
+title: "HIPAA"
+description: "Revised June 2022"
+---
+
+We work with Insight Assurance, an independent cybersecurity consulting firm to validate our security controls and security posture. Our standard business associate agreement ([BAA](https://www.oneschema.co/baa-page)) meets the requirements of HIPAA, making it easy for covered entities to bring OneSchema on board as a business associate.
+
+## Administrative
+
+We have a rigorous security awareness and training program as well as procedures to regularly review records of information system activity, such as audit logs, access reports, and security incident tracking reports. Our Information Security Policy, Incident Response Plan, and Operations Security Policy are in place to prevent, detect, contain, and correct security violations. The company has implemented procedures for monitoring log-in attempts and reporting discrepancies.
+
+All RDS databases are backed up daily, and all AWS S3 buckets containing PHI have versioning enabled to ensure exact copies of ePHI can be created and retrieved reliably. We conduct rigorous penetration tests with independent security consulting firms to ensure the highest levels of data security.
+
+## Physical
+
+Our data is hosted with AWS. Strict policies and procedures are in place that limit physical access to all systems and the facilities in which they are housed, while ensuring that properly authorized access is allowed. Our Physical Security Policy safeguards the facility and the equipment therein from unauthorized physical access, tampering, and theft. You can read more about the physical security controls for AWS data centers [here](https://aws.amazon.com/compliance/data-center/controls).
+
+## Technical
+
+Our Access Control Policy outlines procedures for all systems that maintain ePHI to allow access only to those persons or software programs that have been granted access rights. Levels of access are granted on a principle of least privilege and use Role-Based Access Control. Employees have unique SSH keys and employee computers have encrypted hard drives.
+
+Our team implements cryptographic controls when processing and storing data and perform encryption in accordance with industry standards. All OneSchema web traffic sent over the public internet is encrypted in transit using the TLS v1.2 protocol, and encryption at rest is performed with AES-256.
+
+Data in all AWS RDS instances and S3 buckets is encrypted at rest, and CloudTrail is enabled within AWS to record and monitor activity. Amazon’s Virtual Private Cloud is used to protect our network perimeter in addition to web application firewalls and regular vulnerability scanning.
+
+Visit our [Trust Center](https://app.vanta.com/oneschema/trust/cfdu8ue4eyx4gy3ijz9dx) to learn more about OneSchema's security posture and compliance strategy.

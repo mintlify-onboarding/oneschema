@@ -1,0 +1,136 @@
+---
+title: "Vue"
+---
+
+[![](https://img.shields.io/npm/v/@oneschema/vue)](https://www.npmjs.com/package/@oneschema/vue)
+
+## Getting Started
+
+The OneSchema Vue package contains a Vue plugin to help embed OneSchema into your application
+
+### Installation
+
+You can install this package with npm:
+
+Bash
+
+`npm i --save @oneschema/vue
+`
+
+### Sample usage
+
+Create an instance of the `OneSchemaPlugin` by calling `createOneSchemaImporter` and passing it to Vue's `app.use()`
+
+Vue
+
+`import { createOneSchemaImporter } from '@oneschema/vue'
+
+const app = createApp(App)
+
+app.use(
+  createOneSchemaImporter({
+    /* required here */
+ 		clientId: 'YOUR_CLIENT_ID',
+  	/* required here or at launch */
+  	templateKey: 'YOUR_TEMPLATE_KEY',
+  	userJwt: 'YOUR_USER_JWT',
+  	/* optional */
+    importConfig: { type: "local" },
+    devMode: true,
+    className: 'oneschema-importer',
+  })
+)
+
+app.mount('#app')
+`
+
+Once the OneSchema plugin has been registered, you can call the `useOneSchemaImporter` function to obtain the `OneSchemaImporterClass` instance. 
+
+Vue
+
+`<script setup lang="ts">
+  import { useOneSchemaImporter } from "@oneschema/vue"
+
+  const importer = useOneSchemaImporter();
+
+  const launchOneSchema = function () {
+    importer.launch();
+
+    importer.on('success', (data) => {
+      // TODO: handle success
+      console.log(data);
+    });
+
+    importer.on('cancel', () => {
+      // TODO: handle cancel
+    });
+
+    importer.on('error', (message) => {
+      // TODO: handle errors
+      console.log(message);
+    });
+  };
+</script>
+<template>
+  <button @click="launchOneSchema">Launch embed</button>
+</template>
+
+<style>
+  .oneschema-iframe {
+    width: 100vw;
+    height: 100vh;
+    border: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 10000; /* adjust as needed */
+  }
+</style> 
+`
+
+## API Reference
+
+### Table of Contents
+
+* [createOneSchemaImporter Function](#createoneschemaimporter-function)
+* [useOneSchemaImporter Function](#useoneschemaimporter-function)
+
+The following functions are exported from the `@oneschema/vue` package.
+
+## createOneSchemaImporter function
+
+Calling this function inside of the `app.use()` will register the `OneSchemaPlugin` to your app.
+
+#### params
+
+| **Required** |                                                              |
+| ------------ | ------------------------------------------------------------ |
+| Type         | Object ([OneSchemaParams](/docs/javascript#oneschemaparams)) |
+| Description  | The parameters given at initialization                       |
+
+## useOneSchemaImporter function
+
+Returns a `OneSchemaImporterClass` object, which can be used to launch and close the importer. See [documentation](/docs/javascript#oneschemaimporterclass) for more information.
+
+Sample usage:
+
+JavaScript
+
+`importer.launch(params)
+
+importer.close(clean)
+
+importer.on('success', (data) => {
+  console.log(data)
+})
+
+importer.on('cancel', () => {
+  console.log('OneSchema embed flow cancelled')
+})
+
+importer.on('error', (message) => {
+  console.log(message)
+})
+`
+
+## [](#section-)

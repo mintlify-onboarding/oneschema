@@ -1,0 +1,114 @@
+---
+title: "Using Event Webhooks"
+description: "Event webhooks allow you to be alerted when certain events occur in OneSchema's processing pipeline."
+---
+
+## Event Webhooks
+
+All you need is a webhook URL and a name to create an event webhook in OneSchema. You can use an event webhook to be notified when events occur in OneSchema. The supported events can be found in the Supported Events section on this page.
+
+An event webhook can be subscribed to a list of events for a given embed. A POST request with event details will be sent when a relevant event occurs. The User-Agent HTTP header is set to `OneSchema/1.0`.
+
+### Creating an Event Webhook
+
+An event webhook can be created in the Developer Dashboard in the Webhooks tab. During configuration, select the types of events that the webhook will be subscribed to.
+
+![](/images/7145a53-image.png) 
+
+Every webhook has a corresponding unique `key` property that will be used to identify the webhook in relevant APIs; it can be changed later.
+
+To secure your webhook, we can optionally authenticate webhook requests using HTTP Basic Auth. If a secret key is supplied, the secret key will be used as the basic auth password. No username is passed through.
+
+### Assign an Event Webhook to an Embed
+
+To use event webhooks, they must be assigned during the initialization of an embed. This applies whether embed initialization occurs via an Importer SDK or API.
+
+For either approach, specify the relevant event webhooks that should be subscribed for the resulting embed. The webhooks should be specified in the `eventWebhookKeys` parameter as a list, and each webhook should be identified by the `key` property. If the list is not defined or empty, no events will be fired for the embed.
+
+Detailed information on usage of the `eventWebhookKeys` property can be found in [SDK](/docs/javascript#eventwebhookkeys) and [API](/reference/create-embed) documentation.
+
+### Receiving Data via Webhook
+
+When a registered event occurs for an embed, OneSchema will send a POST request to all webhooks associated with the event and embed. The webhook endpoint should respond promptly with a 200 response. 
+
+**Retries**  
+OneSchema will retry the webhook call up to two times if the request timed out or the server responded with a 408 (request timeout) or 429 (too many requests) code. 
+
+### Event Payload
+
+Each event has a `type` property that describes the event, a unique `id` property, and a `data` property that contains data based on the event.
+
+JSON
+
+`{
+  "type": "import-complete",
+  "id": "evt_aa105aa3-7bcb-4af1-a865-a7ff89d0d45d",
+  "data": {
+  	"embed_id": 1122
+  }
+}
+`
+
+### Supported Events
+
+The following sections describe the event-specific payloads that can be found in the `data` property for each event type.
+
+#### Initial validation complete
+
+Occurs when the initial validation including validation webhooks is completed successfully. This means you can now check for validation errors.
+
+JSON
+
+`{
+  "type": "initial-validation-complete",
+  "id": "evt_aa105aa3-7bcb-4af1-a865-a7ff89d0d45d",
+  "data": {
+  	"embed_id": 1122
+  }
+}
+`
+
+#### Initial validation failed
+
+This event occurs if a validation webhook was either unresponsive, timed out, or returned a 5xx server error. If this event occurs, we recommend investigating validation webhook failures.
+
+JSON
+
+`{
+  "type": "initial-validation-failed",
+  "id": "evt_aa105aa3-7bcb-4af1-a865-a7ff89d0d45d",
+  "data": {
+  	"embed_id": 1122
+  }
+}
+`
+
+#### Import Complete
+
+Occurs after the import via importer webhook or file-upload finished successfully. 
+
+JSON
+
+`{
+  "type": "import-complete",
+  "id": "evt_aa105aa3-7bcb-4af1-a865-a7ff89d0d45d",
+  "data": {
+  	"embed_id": 1122
+  }
+}
+`
+
+#### Import Failed
+
+Occurs if the import via an importer webhook or file-upload failed. The import is retried up to 3 times (see [the importer webhooks page](/docs/importer-webhook#retries) and afterwards is considered failed and this event is sent.
+
+JSON
+
+`{
+  "type": "import-failed",
+  "id": "evt_aa105aa3-7bcb-4af1-a865-a7ff89d0d45d",
+  "data": {
+  	"embed_id": 1122
+  }
+}
+`

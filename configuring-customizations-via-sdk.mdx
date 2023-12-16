@@ -1,0 +1,188 @@
+---
+title: "Configuring Customizations via SDK"
+description: "How to set up OneSchema customizations via the SDK"
+---
+
+Customizations can be configured via the `customizationOverrides` [property](/docs/javascript#customizationoverrides) in the SDK as well as via the [OneSchema admin dashboard](/docs/customizations).
+
+## Branding
+
+#### General
+
+| Configuration              | Key                      | Type          | Description                                                                                                               |
+| -------------------------- | ------------------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Primary color              | primaryColor             | Hex Color     | Hover state in select drop downs, selected rows, loading icons                                                            |
+| Background color           | backgroundPrimaryColor   | Hex Color     | The color of the background of each pane, includes the background of spreadsheet cells                                    |
+| Secondary background color | backgroundSecondaryColor | Hex Color     | The color of the background for secondary features, includes column names and row numbers of the spreadsheet              |
+| Header color               | headerColor              | Hex Color     | The color of the header                                                                                                   |
+| Footer color               | footerColor              | Hex Color     | The color of the footer                                                                                                   |
+| Border color               | borderColor              | Hex Color     | The color of the lines that border features                                                                               |
+| Success state color        | successColor             | Hex Color     | The color of certain UI elements like success check marks                                                                 |
+| Warning state color        | warningColor             | Hex Color     | The color of spreadsheet cells with warnings before opacity is added, also used for warning icons                         |
+| Error state color          | errorColor               | Hex Color     | The color of spreadsheet cells with errors before opacity is added, also used for error icons                             |
+| Fullscreen mode            | modalFullscreen          | boolean       | Whether the importer should take up all the space of the iframe. This will override border radius and modal mask settings |
+| Hide close button          | hideCloseButton          | boolean       | Will hide the 'x' to close the modal when checked. Only works when using Fullscreen mode.                                 |
+| Modal mask color           | modalMaskColor           | Hex Color     | The color of the mask for the modal                                                                                       |
+| Modal border radius        | modalBorderRadius        | string (\_px) | The border radius of the modal frame                                                                                      |
+
+#### Buttons
+
+| Configuration                 | Key                        | Type          | Description                                                              |
+| ----------------------------- | -------------------------- | ------------- | ------------------------------------------------------------------------ |
+| Button border radius          | buttonBorderRadius         | string (\_px) | The amount of curvature the button corners have                          |
+| Primary button fill color     | buttonPrimaryFillColor     | Hex Color     | The color of the primary buttons (like "Import" or "Next")               |
+| Primary button stroke color   | buttonPrimaryStrokeColor   | Hex Color     | Border color for the main buttons                                        |
+| Primary button text color     | buttonPrimaryTextColor     | Hex Color     | Text color on the primary button                                         |
+| Secondary button fill color   | buttonSecondaryFillColor   | Hex Color     | The color of the secondary buttons (like "Previous")                     |
+| Secondary button stroke color | buttonSecondaryStrokeColor | Hex Color     | Border color for the secondary buttons                                   |
+| Secondary button text color   | buttonSecondaryTextColor   | Hex Color     | Text color on the secondary button                                       |
+| Tertiary button fill color    | buttonTertiaryFillColor    | Hex Color     | The color of the tertiary buttons (like "Find and replace" and "Export") |
+| Tertiary button stroke color  | buttonTertiaryStrokeColor  | Hex Color     | Border color for the tertiary buttons                                    |
+| Tertiary button text color    | buttonTertiaryTextColor    | Hex Color     | Text color on the tertiary buttons                                       |
+| Alert button fill color       | buttonAlertFillColor       | Hex Color     | The color of the alert buttons                                           |
+| Alert button stroke color     | buttonAlertStrokeColor     | Hex Color     | Border color for alert buttons                                           |
+| Alert button text color       | buttonAlertTextColor       | Hex Color     | Text color on alert buttons                                              |
+
+#### Font
+
+| Configuration          | Key                  | Type      | Description                                                                                                                                                                                                  |
+| ---------------------- | -------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Custom font URL        | fontUrl              | string    | URL for the font, font family must also be provided                                                                                                                                                          |
+| Font family            | fontFamily           | string    | Name of the font family, custom font URL must also be provided; comma-separated fallback families can be provided (i.e. Sans serif, Aerial would set a default font of Sans serif with a fallback of Aerial) |
+| Primary font color     | fontColorPrimary     | Hex Color | Color for the primary font (like spreadsheet cells, column names)                                                                                                                                            |
+| Secondary font color   | fontColorSecondary   | Hex Color | Color for the secondary font (like sample data, titles, error descriptions)                                                                                                                                  |
+| Placeholder font color | fontColorPlaceholder | Hex Color | Color for the placeholder font (like unmapped columns and "Fix formatting errors" buttons)                                                                                                                   |
+
+## Automations
+
+#### 1-click mode
+
+| Configuration | Key          | Type    | Description                                                                                                                                                        |
+| ------------- | ------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1-click mode  | oneClickMode | boolean | 1-click mode enables end users to skip all steps of the importer if the file matches certain conditions. Read our [docs](/docs/1-click-mode) for more information. |
+
+#### Pane Skipping
+
+| Configuration                                          | Key           | Type                     | Description                                                                                                                                                                                                                                                                                 |                                                                                      |                                                                                                                           |
+| ------------------------------------------------------ | ------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| Skip Select Header Row pane                            | skipHeaderRow | "always" \| "detect"     | "never"                                                                                                                                                                                                                                                                                     | Strategy for when (if ever) to skip the Select Header Row pane. Defaults to "detect" |                                                                                                                           |
+| Skip Map Columns pane if columns automatically match   | skipMapping   | \[\]: "exact" \| "fuzzy" | "historical\_user"                                                                                                                                                                                                                                                                          | "historical\_org"                                                                    | What strategies to test when attempting to skip the mapping pane. Note that we will only skip if all columns are matched. |
+| Import data without showing the Review & Finalize pane | skipCleaning  | boolean                  | Omit the Review & Finalize pane if there aren’t any errors in the file. The Importer will close once the user has successfully completed the Map Columns step.Behavior will depend on the setting for import experience. If ignore errors is set, Review & Finalize will always be skipped. |                                                                                      |                                                                                                                           |
+
+#### Data Mapping
+
+| Configuration                                        | Key                 | Type                         | Description                                                                                                                                                     |                   |                                                                   |
+| ---------------------------------------------------- | ------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- | ----------------------------------------------------------------- |
+| Uploaded column to template column matching strategy | mappingStrategy     | \[\]: "exact" \| "fuzzy"     | "historical\_user"                                                                                                                                              | "historical\_org" | What strategies to apply when suggesting mappings on mapping pane |
+| AI-suggested mappings                                | aiSuggestedMappings | \[\]: "column" \| "picklist" | Enable OneSchema AI to suggest potential column mappings and picklist mappings. Learn more about how these suggestions are made in our [docs](/docs/ai-bundle). |                   |                                                                   |
+
+#### Error Resolution
+
+| Configuration                            | Key                       | Type    | Description                                                                                                                                                                                                |
+| ---------------------------------------- | ------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fix all errors automatically             | autofixAfterMapping       | boolean | Whether OneSchema should autofix errors after the mapping step. This is akin to clicking the "Fix all formatting errors" button                                                                            |
+| Accept webhook suggestions automatically | acceptCodeHookSuggestions | boolean | If there are validation webhooks on the template, OneSchema will automatically apply the suggested fix, skipping user confirmation. Applies only when moving from the mapping screen to review & finalize. |
+
+## User Education
+
+#### Global text
+
+| Configuration    | Key            | Type   | Description                                              |
+| ---------------- | -------------- | ------ | -------------------------------------------------------- |
+| Back button text | backButtonText | string | The text that appears on the back button in the Importer |
+| Next button text | nextButtonText | string | The text that appears on the next button in the Importer |
+
+#### Education Widget
+
+| Configuration                         | Key                              | Type    | Description                                                                           |
+| ------------------------------------- | -------------------------------- | ------- | ------------------------------------------------------------------------------------- |
+| Show upload education widget          | showUploadEducationWidget        | boolean | Whether to have a custom education widget on the upload pane                          |
+| Upload education widget message       | uploadEducationWidgetMessage     | string  | The contents of the education widget on the upload paneSupports markdown              |
+| Auto open upload education widget     | uploadEducationWidgetAutoOpen    | boolean | Whether the education widget should auto open                                         |
+| Show set header education widget      | showSetHeaderEducationWidget     | boolean | Whether to have a custom education widget on the select header pane                   |
+| Set header education widget message   | setHeaderEducationWidgetMessage  | string  | The contents of the education widget on the select header paneSupports markdown       |
+| Auto open set header education widget | setHeaderEducationWidgetAutoOpen | boolean | Whether the education widget should auto open                                         |
+| Show mapping education widget         | showMappingEducationWidget       | boolean | Whether to have a custom education widget on the mapping pane                         |
+| Mapping education widget message      | mappingEducationWidgetMessage    | string  | The contents of the education widget on the mapping paneSupports markdown             |
+| Auto open mapping education widget    | mappingEducationWidgetAutoOpen   | boolean | Whether the education widget should auto open                                         |
+| Show cleaning widget                  | showCleaningEducationWidget      | boolean | Whether to have a custom education widget on the review and finalize pane             |
+| Cleaning education widget message     | cleaningEducationWidgetMessage   | string  | The contents of the education widget on the review and finalize paneSupports markdown |
+| Auto open cleaning education widget   | cleaningEducationWidgetAutoOpen  | boolean | Whether the education widget should auto open                                         |
+
+#### Upload a file
+
+| Configuration                                        | Key                       | Type                | Description                                                                                   |
+| ---------------------------------------------------- | ------------------------- | ------------------- | --------------------------------------------------------------------------------------------- |
+| Informational Sidebar                                | uploaderShowSidebar       | boolean             | Whether to show the sidebar on the upload pane                                                |
+| Show template column details                         | uploaderSidebarDetails    | "required" \| "all" | What columns to list on the sidebar of the upload pane                                        |
+| Info banner                                          | uploaderShowSidebarBanner | boolean             | Whether to show the banner above the sidebar of the upload pane                               |
+| Info banner text                                     | uploaderSidebarBannerText | string              | The text of the banner above the sidebar of the upload pane                                   |
+| Include a downloadable Excel template for your users | includeExcelTemplate      | boolean             | Whether a button to download an Excel template should appear in the footer of the upload pane |
+| Uploader pane header text                            | uploadPaneHeaderText      | string              | The text at the top of the upload pane                                                        |
+| Uploader header text                                 | uploaderHeaderText        | string              | The text underneath the illustration in the middle of the importer.                           |
+| Uploader subheader text                              | uploaderSubheaderText     | string              | The text below the header on the uploader                                                     |
+
+#### Select header row
+
+| Configuration    | Key                     | Type   | Description                                       |
+| ---------------- | ----------------------- | ------ | ------------------------------------------------- |
+| Pane header text | setHeaderPaneHeaderText | string | The text at the top of the select header row pane |
+
+#### Map columns
+
+| Configuration                | Key                       | Type                | Description                                                                                                           |
+| ---------------------------- | ------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Informational Sidebar        | mappingShowSidebar        | boolean             | Whether to show the sidebar on the mapping pane                                                                       |
+| Show template column details | mappingSidebarDetails     | "required" \| "all" | What columns to list on the sidebar of the mapping pane                                                               |
+| Info banner                  | mappingShowSidebarBanner  | boolean             | Whether to show the banner above the sidebar of the mapping pane                                                      |
+| Info banner text             | mappingSidebarBannerText  | string              | The text of the banner above the sidebar of the mapping pane                                                          |
+| Pane header text             | mappingPaneHeaderText     | string              | The text at the top of the mapping pane                                                                               |
+| Uploaded column label        | mappingUploadedColumnText | string              | The text label above the user’s uploaded column                                                                       |
+| Template column label        | mappingTemplateColumnText | string              | The text label for a template column. This appears above the mapping table as well as in the template column dropdown |
+
+#### Review and Finalize
+
+| Configuration            | Key                       | Type   | Description                                                      |
+| ------------------------ | ------------------------- | ------ | ---------------------------------------------------------------- |
+| Pane header text         | cleaningPaneHeaderText    | string | The text at the top of the Review and Finalize pane              |
+| Confirmation button text | cleaningConfirmButtonText | string | The text that appears on the confirmation button prior to import |
+
+## Advanced Options
+
+#### Upload a file
+
+![](/images/6736d8a-image.png)
+
+| Configuration   | Key             | Type         | Description                                               |
+| --------------- | --------------- | ------------ | --------------------------------------------------------- |
+| File size limit | fileSizeLimit   | number       | The maximum file size a user can upload in megabytes (MB) |
+| Illustration    | illustrationUrl | string (url) | A URL to an image for the importer                        |
+
+#### Map columns
+
+| Configuration                          | Key                    | Type    | Description                                                                                                   |
+| -------------------------------------- | ---------------------- | ------- | ------------------------------------------------------------------------------------------------------------- |
+| Automatically include unmapped columns | includeUnmappedColumns | boolean | Whether unmapped columns should appear on imports. See our docs on [Unmapped Columns](/docs/unmapped-columns) |
+
+#### Review and Finalize
+
+| Configuration               | Key                       | Type                                | Description                                                                                            |                                                                                           |
+| --------------------------- | ------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
+| Prevent row deletion        | preventRowDeletion        | \[\]: "selection" \| "errors"       | Prevents users from deleting rows (either manually via row selection or via the delete all error rows) |                                                                                           |
+| Import row limit            | importMaxRowLimit         | integer                             | Max number of rows allowed for import                                                                  |                                                                                           |
+| Row limit modal header      | importRowLimitHeader      | string                              | Custom header text for row limit error modal                                                           |                                                                                           |
+| Row limit modal description | importRowLimitDescription | string                              | Custom description text for row limit error modal                                                      |                                                                                           |
+| Allow empty files           | allowEmptyImports         | boolean                             | Whether to allow users to import a file with only a header row                                         |                                                                                           |
+| Import experience           | importErrorUX             | "blockIfErrors" \| "promptIfErrors" | "ignoreErrors"                                                                                         | Determines behavior for prompting the user when they click "Import" when there are errors |
+
+## Multiple Customizations
+
+If you have multiple importers in your app and want each one to use different customizations, you can create a customization for each importer on the [Customizations page](https://app.oneschema.co/customizations) and then use their customization keys with the SDK to customize each importer.
+
+First, "Create a copy" of your initial customization.
+
+![](/images/9ef7121-image.png)
+
+Then, set the settings that you want to use for your second importer.
+
+Finally, use the "Customization key" that you specified as the [customizationKey](/docs/javascript#customizationkey) in the SDK.

@@ -1,0 +1,21 @@
+---
+title: "Configuring File Upload URL"
+---
+
+With this import configuration, the cleaned file will be sent to an URL you provide for each importer session. This can for example be a presigned S3 upload URL. To use this import method, specify `importConfig: { type: "file-upload", url: "<upload-url>"}` in your configuration for OneSchema. 
+
+This supports sending the data as a CSV or JSON file.
+
+The file data will be sent in the body of a single PUT request to the provided URL. Headers for the PUT request may be optionally set via the [FileUploadImportConfig _headers_ parameter](/docs/javascript#headers).
+
+When an import completes _and_ the file has been successfully deposited in the signed URL, the [success event](/docs/javascript#success-event) will be fired which will include the `embed_id`. If an error occurs, an error message will be displayed and the [error event](/docs/javascript#error-event) will be fired. 
+
+#### Presigned S3 Upload URL Requirements
+
+The presigned URL has to be created by someone who has permission to create files in the S3 bucket. Make sure to use AWS Signature Version 4.
+
+Besides the `bucket` and `key` parameters you also have to set the `content-type` in the parameters when creating the presigned URL. In the case of a CSV file, it should be set to `text/csv`, and in the case of a JSON file to `application/json`. If this is not set correctly the upload request will fail with a 403 status code.
+
+Additionally, the [FileUploadImportConfig _format_ parameter](/docs/javascript#format) must be set to "json" or "csv". 
+
+Since you provide the URL when initializing the importer make sure the URL has a long enough expiration duration to give your user enough time to go through the import workflow.

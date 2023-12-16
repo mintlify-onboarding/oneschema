@@ -1,0 +1,71 @@
+---
+title: "Validating Relational Data"
+---
+
+## Overview
+
+Relational data is a collection of tables in which data across tables is linked. Most commonly, data objects are linked together using a unique key, allowing data from one table to reference another. If data cannot be linked, it may not be useful or duplicates may be accidentally created. 
+
+  
+## Validating relational data in OneSchema
+
+OneSchema supports relational data validation via the use of our [Validation Webhook](/docs/validation-webhook) and gating the import order on your frontend. Here are the steps to follow:
+
+1. The user imports the highest level data (per our example below, this would be "Accounts") which you store.
+2. The user is then able to upload the next level of data (per our example below, this would be "Opportunities").
+3. Prior to allowing the lower-level data import to be completed, the unique reference keys will be sent to your backend via Validation Webhook. Compare these keys against the previously imported data.
+
+_IF_ a match is not found for a specific key...
+
+1. Respond to the webhook call with an error.
+
+_ELSE IF_ matches are found for all keys...
+
+1. Allow the user to import the data.
+2. \[Optional\] Allow the user to upload a subsequent sheet and go back to step 2.
+  
+### Example
+
+Let's take CRM (customer relationship management) data as an example. Our CRM is made up of the following tables: 
+
+* Accounts
+* Opportunities (which relates to accounts)
+* Dates of meetings (which relates to opportunities)
+
+If we don't know which account an opportunity is associated with, the data is not useful. Likewise if we don't know which meeting dates go with which opportunity. In order for the data to be complete, each set of meeting dates must be associated with an opportunity, which must be associated with an account. 
+
+When beginning a new import, we must first import the account list so that opportunities have something to reference. If we try to import an opportunity that is not associated with an account (or start by importing opportunities), we will encounter an error due to the higher-level data not being present. 
+
+**Accounts**
+
+| Account name | Number of employees | Location                  |
+| ------------ | ------------------- | ------------------------- |
+| Google       | 150,000             | Mountain View, California |
+| ACME Inc     | 1                   | The Desert                |
+| Dyson        | 14,000              | London, England           |
+
+**Opportunities**
+
+In the table below, the linked account "Apple" will fail the relational check since it's missing from the accounts table. 
+
+| Opportunity name            | Linked account | Value | Close date |
+| --------------------------- | -------------- | ----- | ---------- |
+| Vacuum power, add-on        | Dyson          | $60   | 04/22/2024 |
+| Contraption that won't work | ACME Inc       | $50   | 02/11/2022 |
+| Fresh pears                 | Apple          | $30   | 09/18/2023 |
+
+**Dates of meetings**
+
+In the table below, the linked opportunity "Jungle plants" will fail the relational check since it's missing from the opportunities table. 
+
+| Linked opportunity          | Date 1     | Date 2     |
+| --------------------------- | ---------- | ---------- |
+| Contraption that won't work | 04/20/2021 | 06/03/2021 |
+| Fresh pears                 | 11/06/2022 | 12/09/2022 |
+| Vacuum power, add-on        | 05/14/2020 | 10/30/2022 |
+| Jungle plants               | 01/21/2022 | 11/23/2022 |
+
+  
+![A mock-up of what the import flow could look like on your frontend](/images/2fae2ad-relational_data.png)
+
+A mock-up of what the import flow could look like on your frontend

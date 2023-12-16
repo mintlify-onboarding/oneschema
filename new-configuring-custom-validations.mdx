@@ -1,0 +1,57 @@
+---
+title: "Custom Validations"
+---
+
+## Types of custom validations
+
+| Type                      | Use                                                                                                                           |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Custom regular expression | Simple formatting checks (i.e. allowing commas and periods as decimal places, supporting multiple currency symbols).          |
+| Validation webhook        | Checking data against your database, a third party data source, or writing custom validations in the language of your choice. |
+| In-memory code-hook       | Creating complex, performant custom validations entirely within OneSchema.                                                    |
+
+### Custom regular expression (regex)
+
+OneSchema supports custom regex in SQL format which can be selected in the data validations list when creating a new template column. 
+
+![](/images/e4fb2e0-Screen_Shot_2022-11-17_at_11.22.42_AM.png)
+
+  
+### Validation webhook
+
+A validation webhook is a way to use an API endpoint to create a custom validator. OneSchema will pass data to a specified endpoint, and it can be validated against a database, a third party data source, or complex logic checks can be performed. OneSchema simply expects a response of errors and warnings.
+
+  
+Validation webhooks are configured on the template to which they apply. To add a webhook to a template, head to [your templates page](https://app.oneschema.co/templates) and click _Details_ on the template you want to edit.
+
+  
+Select _Validation webhooks_ in the left sidebar, followed by _Add a new validation hook_ in the center of the screen.
+
+![](/images/e39ee35-Screenshot_2023-10-11_at_7.12.05_PM.png "fd06481-edit_col.png") 
+
+Then enter a name, endpoint, and select which columns should be passed through. Optionally set a secret key for http basicauth and a bath size. 
+
+![](/images/511262d-Screen_Shot_2022-07-22_at_4.02.24_PM.png "Screen Shot 2022-07-22 at 4.02.24 PM.png")
+
+  
+Then, fill in the relevant fields.
+
+| Option               | Description                                                                                            |
+| -------------------- | ------------------------------------------------------------------------------------------------------ |
+| Validation hook name | The name of your webhook.                                                                              |
+| URL                  | The url to the endpoint which will receive the webhook call.                                           |
+| Template column Keys | The keys of the columns you wish to include with the webhook call. Only selected columns will be sent. |
+| Secret Key           | An optional token used to authenticate the webhook call.                                               |
+| Batch size           | The number of rows of data to include in each call.                                                    |
+
+  
+To configure your endpoint on the backend, continue with our guide on [validation webhooks](/docs/validation-webhook).
+
+  
+### In-memory code-hook
+
+[In-memory code-hooks](/reference/code-hooks) enable custom validation logic to be written within OneSchema's admin portal without the need to configure a backend webhook endpoint. Some example use cases include merging rows, splitting and merging columns, and multi-column uniqueness checks. 
+
+These hooks are extremely performant and reduce implementation complexity when compared to validation webhooks, allowing the entire validation process to be handled by OneSchema. 
+
+Note that in-memory code-hooks cannot make external calls, so if you need to validate against your database or a third-party source, you'll need to use a validation webhook.

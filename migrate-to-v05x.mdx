@@ -1,0 +1,37 @@
+---
+title: "Migrate to v0.5.x"
+---
+
+In version >= 0.5, error payloads are [Objects](/docs/javascript#oneschemaerror), rather than strings.
+
+If you are using the Javascript importer, you will need to update the code that listens to the "error" event:
+
+TypeScript
+
+`// Before
+importer.on("error", (message) => {  
+  console.log(message)  
+})
+
+// After
+importer.on("error", (error) => {  
+  console.log(error.message)  
+})
+`
+
+If you are using the React importer, you will need to update the `onError` callback that's passed in:
+
+TypeScript
+
+`// Before
+<OneSchemaImporter
+  ...
+  onError={(message) => console.log(message)}
+/>
+
+// After
+<OneSchemaImporter
+  ...
+  onError={(error) => console.log(error.message)}
+/>
+`

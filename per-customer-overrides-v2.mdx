@@ -1,0 +1,262 @@
+---
+title: "Configuring Per-Customer Overrides"
+---
+
+### Why use Customization and Template Overrides
+
+[Customizations](/docs/customizations) and [Templates](/docs/templates) determine the behavior of OneSchema Importers. Using overrides can allow specific behavior for individual importing sessions.
+
+### Template Overrides
+
+#### When to override
+
+* Adjusting template column behavior on a per-customer basis (eg. picklist options).
+
+If you are using our SDK to initialize your importer, pass in [templateOverrides](/docs/javascript#templateoverrides) as part of the `OneSchemaLaunchParams`.
+
+If you are using the API, pass in `template_overrides` to the [create embedded session](/reference/create-embed) endpoint.
+
+The format for `templateOverrides` is `OneSchemaTemplateOverrides` documented below.
+
+#### OneSchemaTemplateOverrides
+
+| Key                        | Type                                | Description                                                                                                                                                                   |
+| -------------------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| columns\_to\_add           | OneSchemaTemplateColumnToAdd\[\]    | Array of columns to add to the template.                                                                                                                                      |
+| columns\_to\_update        | OneSchemaTemplateColumnToUpdate\[\] | Array of columns to update in the template. OneSchema identifies columns via the key and replaces the properties of the column with those provided in the template overrides. |
+| columns\_to\_remove        | OneSchemaTemplateColumnToRemove\[\] | Array of columns to remove from the template.                                                                                                                                 |
+| validation\_hooks\_to\_add | OneSchemaValidationHooksToAdd\[\]   | Array of validation hook to add to the template.                                                                                                                              |
+
+#### OneSchemaTemplateColumnToAdd
+
+| Key                 | Type       | Required                                                                                                           | Description                                        |
+| ------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------- |
+| key                 | string     | true                                                                                                               | Unique key identifier for a given template column  |
+| label               | string     | true                                                                                                               | Display label of the template column for end users |
+| data\_type          | string     | Data type for the template column (eg. "PICKLIST" or "NUMBER")                                                     |                                                    |
+| validation\_options | Object     | Additional validation properties on top of specific data types (eg. values for picklists or only\_int for numbers) |                                                    |
+| description         | string     | Description displayed to end user                                                                                  |                                                    |
+| is\_custom          | boolean    | Whether the template column should act as a [Custom Column](/docs/types-of-columns#custom-columns)                 |                                                    |
+| is\_required        | boolean    | Cells in this column cannot have blank values.                                                                     |                                                    |
+| is\_unique          | boolean    | All values in the column must be unique                                                                            |                                                    |
+| letter\_case        | string     | Casing validation for the column (eg. "LETTER\_CASE\_UPPER", "LETTER\_CASE\_LOWER", or "LETTER\_CASE\_TITLE")      |                                                    |
+| min\_char\_limit    | integer    | Min number of characters                                                                                           |                                                    |
+| max\_char\_limit    | integer    | Max number of characters                                                                                           |                                                    |
+| delimiter           | string     | Delimiter character to be used for separating multi-value fields.                                                  |                                                    |
+| must\_exist         | boolean    | Column must be mapped                                                                                              |                                                    |
+| default\_value      | string     | Automatically replace empty cells with provided default value                                                      |                                                    |
+| mapping\_hints      | string\[\] | Array of sheet column names to automatically map this column to                                                    |                                                    |
+
+#### OneSchemaTemplateColumnToUpdate
+
+| Key                 | Type       | Required                                                                                                           | Description                                       |
+| ------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------- |
+| key                 | string     | true                                                                                                               | Unique key identifier for a given template column |
+| label               | string     | Display label of the template column for end users                                                                 |                                                   |
+| data\_type          | string     | Data type for the template column (eg. "PICKLIST" or "NUMBER")                                                     |                                                   |
+| validation\_options | Object     | Additional validation properties on top of specific data types (eg. values for picklists or only\_int for numbers) |                                                   |
+| description         | string     | Description displayed to end user                                                                                  |                                                   |
+| is\_custom          | boolean    | Whether the template column should act as a [Custom Column](/docs/types-of-columns#custom-columns)                 |                                                   |
+| is\_required        | boolean    | Cells in this column cannot have blank values.                                                                     |                                                   |
+| is\_unique          | boolean    | All values in the column must be unique                                                                            |                                                   |
+| letter\_case        | string     | Casing validation for the column (eg. "LETTER\_CASE\_UPPER", "LETTER\_CASE\_LOWER", or "LETTER\_CASE\_TITLE")      |                                                   |
+| min\_char\_limit    | integer    | Min number of characters                                                                                           |                                                   |
+| max\_char\_limit    | integer    | Max number of characters                                                                                           |                                                   |
+| delimiter           | string     | Delimiter character to be used for separating multi-value fields.                                                  |                                                   |
+| must\_exist         | boolean    | Column must be mapped                                                                                              |                                                   |
+| default\_value      | string     | Automatically replace empty cells with provided default value                                                      |                                                   |
+| mapping\_hints      | string\[\] | Array of sheet column names to automatically map this column to                                                    |                                                   |
+
+#### OneSchemaTemplateColumnToRemove
+
+| Key | Type   | Required | Description                                       |
+| --- | ------ | -------- | ------------------------------------------------- |
+| key | string | true     | Unique key identifier for a given template column |
+
+#### OneSchemaValidationHooksToAdd
+
+| Key                 | Type       | Required                                                                                                                    | Description                                                                                                                                                 |
+| ------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name                | string     | true                                                                                                                        | Name of the validation hook.                                                                                                                                |
+| url                 | string     | true                                                                                                                        | The URL where the validation hook will be called. [Environment variables](/docs/environments#using-environment-variables) can be used when setting the url. |
+| column\_key         | string\[\] | Columns to be sent in the validation hook.                                                                                  |                                                                                                                                                             |
+| custom\_column\_key | string\[\] | [Custom columns](/docs/custom-columns) to be sent in the validation hook                                                    |                                                                                                                                                             |
+| hook\_type          | string     | One of row or column. See [Validation Webhook](/docs/validation-webhook) for more details. Defaults to row if not provided. |                                                                                                                                                             |
+| secret\_key         | string     | If a secret key is provided, the secret key will be used as the basic auth password.                                        |                                                                                                                                                             |
+| batch\_size         | integer    | Batch size for row hooks. Defaults to 1000 if not provided.                                                                 |                                                                                                                                                             |
+
+#### Sample Usage
+
+Below is an example use case for a number of overrides to a sample template with key `crm_test`. The following actions are taken: 
+
+* Create a new column `account_executive` which is marked as required.
+* Replace the valid picklist values on column `segment` with `["A", "B"]`
+* Update column `phone_number` to be both required and unique
+* Update the description and label of column `metadata`
+* Remove the column `lead_source`
+
+JavaScript
+
+`const importer = oneSchemaImporter({
+  clientId: "CLIENT_ID",
+  userJwt: "USER_JWT",
+  templateKey: "crm_test",
+  templateOverrides: {
+    columns_to_add: [
+      {
+        key: "account_executive",
+        label: "Account Executive",
+        data_type: "TEXT",
+        is_required: true
+      }
+    ],
+    columns_to_update: [
+      {
+        key: "segment",
+        validation_options: {
+          values: ["A", "B"]
+        },
+      },
+      {
+        key: "phone_number",
+        is_required: true,
+        is_unique: true,
+      },
+      {
+        key: "metadata",
+        label: "Customer Info",
+        description: "Provide any additional metadata about the customer as freeform text."
+      } 
+    ],
+    columns_to_remove: [
+      { 
+        key: "lead_source",
+      },
+    ],
+    validation_hooks_to_add: [
+      {
+        name: "Phone number validator",
+        url: "{{base_url}}/oneschema-webhooks/phone-number-validator",
+        column_keys: ["phone_number"]
+      }
+    ]
+  },
+})
+`
+
+### Picklist Overrides
+
+Picklist overrides are a subset of `templateOverrides`. For picklist columns, you must configure the options via `validation_options`. If you only want to update the values themselves, you can pass in `values` as an array of strings. OneSchema will automatically assign colors to your options in reverse rainbow order (from purple to red). 
+
+Javascript
+
+`validation_options: {
+  values: ["Seedling","Still growing", "Fully grown"]
+},
+`
+
+However, if you would like to specify the color, description, and/or alternative picklist names, you should instead pass in `picklist_options`. This should be an array of `OneSchemaPicklistOption` objects
+
+#### OneSchemaPicklistOption
+
+| Key                | Type       | Description                                                                                                                                                           |
+| ------------------ | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| value              | string     | Value of the picklist option                                                                                                                                          |
+| color              | string     | Color of the option, either one of the OneSchemaPicklistColors or a 6-digit hex code                                                                                  |
+| description        | string     | Description of the picklist option to be displayed in option dropdowns.                                                                                               |
+| alternative\_names | string\[\] | List of alternative names for the specific picklsit option. If uploaded values match any of the alternative names, the picklist option will be matched automatically. |
+
+#### Picklist Color Overrides
+
+Colors should either be one of the `OneSchemaPicklistColors` or, you can simply pass in a hex code (eg. `#FF00AA`).
+
+#### OneSchemaPicklistColors
+
+| Token Name                 | Hex code  |
+| -------------------------- | --------- |
+| ColorSelectorPurple100     | \# 722ED1 |
+| ColorSelectorBluePurple100 | \# 2F7AEB |
+| ColorSelectorBlue100       | \# 40A9FF |
+| ColorSelectorGreenBlue100  | \# 33C18E |
+| ColorSelectorGreen100      | \# 52C41A |
+| ColorSelectorYellow100     | \# EFC600 |
+| ColorSelectorOrange100     | \# EF8F00 |
+| ColorSelectorRed100        | \# F5222D |
+| ColorSelectorPink100       | \# EB2F96 |
+| ColorSelectorGray100       | \# 595959 |
+
+#### Picklist Descriptions
+
+If you would like to provide additional information to your customers, you can specify string descriptions which will be displayed below each option.
+
+![](/images/b8a9bd9-Screen_Shot_2023-11-08_at_4.43.10_PM.png) 
+
+#### Sample Usage
+
+JavaScript
+
+`const importer = oneSchemaImporter({
+  clientId: "CLIENT_ID",
+  userJwt: "USER_JWT",
+  templateKey: "products",
+  templateOverrides: {
+    columns_to_update: [
+      {
+        key: "size",
+        validation_options: {
+         picklist_options: [
+           {
+             value: "Seedling", 
+             color: "ColorSelectorPurple100",
+             alternative_names: ["Sprout"],
+             description: "A seedling is any young plant that has not yet been transported. Also known as a sprout."
+           },
+           {
+             value:"Still growing", 
+             color:"#FFAA00",
+           },
+           {
+             value:"Fully grown",
+             color:"ColorSelectorGreen100"
+           }
+         ]
+        },
+      }
+    ]
+  },
+})
+`
+
+### Customization Overrides
+
+#### When to override
+
+* Updating branding options for specific customers.
+
+If you are using our SDK to initialize your importer, pass in [customizationOverrides](/docs/javascript#customizationoverrides) as part of the OneSchemaLaunchParams.
+
+If you are using the API, pass in `customization_overrides` to the [Create an Embedded Session](/reference/create-embed) endpoint.
+
+ A comprehensive list of all customization options can be found [on the Customizations page](/docs/customizations).
+
+#### Sample Usage
+
+Below is an example of how to pass in `customizationOverrides` to the base JavaScript SDK. These options will:
+
+* Update the primaryColor to be "#FF0000"
+* Show the informational sidebar on upload pane
+* Change the import experience to be "ignoreErrors"
+
+JavaScript
+
+`const importer = oneSchemaImporter({
+  clientId: "CLIENT_NAME",
+  userJwt: "USER_JWT",
+  templateKey: "crm_test",
+  customizationOverrides: {
+   primaryColor: "#FF0000",
+   uploaderShowSidebar: true,
+   importErrorUX: "ignoreErrors"
+  },
+})
+`

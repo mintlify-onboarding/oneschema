@@ -1,0 +1,23 @@
+---
+title: "Embedding Inline"
+---
+
+Fullscreen mode can be used to embed OneSchema's Importer iFrame inline without a modal mask rather than as a pop-over. This can be done via the Branding GUI or SDK parameters.
+
+### Dashboard
+
+On the Branding page, check the boxes for "Fullscreen mode" and "Hide close button".
+
+![](/images/cdd6b85-Screen_Shot_2023-08-16_at_10.24.58_AM.png) 
+
+### SDK
+
+Within the [customizationOverrides](/docs/javascript#customizationoverrides) param, set the [customizations general params](/docs/customizations#general) `modalFullscreen` and `hideCloseButton` both to `true`.
+
+#### JS
+
+Use the [setParent parameter](/docs/javascript#setparentparent) to display the OneSchema importer in any HTML element on your website. 
+
+#### React
+
+Set the [inline property](/docs/react#inline) to `true`.

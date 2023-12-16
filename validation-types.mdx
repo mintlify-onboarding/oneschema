@@ -1,0 +1,111 @@
+---
+title: "Using Pre-Built Validations"
+---
+
+## No-code data validations
+
+See below for details on all no-code data validations supported by OneSchema which can be used when [configuring a template](/docs/creating-and-editing-templates). 
+
+  
+| Validation                | Function                                                                                                                                           | Autofix                                                                                                                                  | Error code |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| Alphabetical              | Only allow alphabetical characters, spaces, and special characters (i.e. ñ and ü)                                                                  | N/A                                                                                                                                      | 37         |
+| Boolean                   | One of two pre-determined options. i.e. "Yes" and "No"; "True" and "False"; "0" and "1".                                                           | Adjusts letter casing to match predefined boolean values.                                                                                | 55         |
+| Country                   | Countries, dependent territories, and other.                                                                                                       | Auto-transforms between two-digit codes, three-digit codes, and full country names (i.e. US, USA, United States of America).             | 51         |
+| Currency Code             | ISO codes for different currencies.                                                                                                                | N/A                                                                                                                                      | 6          |
+| Custom Regex              | Supply a custom regex to validate values.                                                                                                          | N/A                                                                                                                                      | 36         |
+| Date DD/MM/YYYY           | Dates in DD/MM/YYYY format separated by slashes which require leading zeros.                                                                       | See dates table below.                                                                                                                   | 25         |
+| Date DD/MMM/YY            | Dates in DD/MMM/YY separated by slashes which require leading zeros.                                                                               | See dates table below.                                                                                                                   | 35         |
+| Date ISO                  | Dates in format YYYY-MM-DD (leading zeros).                                                                                                        | See dates table below.                                                                                                                   | 29         |
+| Date MM/DD/YYYY           | Dates in MM/DD/YYYY format separated by slashes which require leading zeros.                                                                       | See dates table below.                                                                                                                   | 3          |
+| Date YYYY/MM/DD           | Dates in YYYY/MM/DD format separated by slashes which require leading zeros.                                                                       | See dates table below.                                                                                                                   | 34         |
+| Datetime ISO              | Dates in format YYYY-MM-DDTHH:NNTz (timezone).                                                                                                     | See datetimes table below.                                                                                                               | 30         |
+| Datetime MM/DD/YYYY HH:MM | Date with time in format MM/DD/YYYY HH:mm.                                                                                                         | See datetimes table below.                                                                                                               | 45         |
+| Domain                    | Values must be valid website domains without a scheme or path.                                                                                     | N/A                                                                                                                                      | 10         |
+| Email                     | Values must be an email.                                                                                                                           | N/A                                                                                                                                      | 13         |
+| File Name                 | List of acceptable file name extensions (eg. .doc or .pdf).                                                                                        | N/A                                                                                                                                      | 48         |
+| IANA Time Zone            | IANA time zone in the format Country/City (eg. America/New\_York)                                                                                  | N/A                                                                                                                                      | 33         |
+| JSON Object               | Value must be a valid json object                                                                                                                  | N/A                                                                                                                                      | 53         |
+| Money                     | Amount of Money starting with dollar sign (ie. $123.45)                                                                                            | Adds '$' to numbers with up to two decimal places. Adds trailing zero(s) until two decimal digits exist.                                 | 31         |
+| Number                    | Numeric values: options for integer only, specific number of decimal places, use of thousands separators, and enforcing a range.                   | Removes leading # and $, adds leading and trailing zeros as required, converts accounting notation to negative numbers i.e. (12) to -12. | 2          |
+| Percentage                | Numeric values that end with a percentage sign (%).                                                                                                | Adds '%' to numbers. Adds '0' before decimal place is the number is <1.                                                                  | 40         |
+| Phone Number              | International e164 format (eg. +14087771288) between 2 and 15 digits.                                                                              | Adds a leading '+' if one is not present. Removes the following characters: . , / ( ) " " (space).                                       | 7          |
+| Picklist                  | Values from a set list of defined options. <40k entries per picklist for performance.                                                              | N/A                                                                                                                                      | 1          |
+| SSN (masked)              | SSN with only the last 4 digits (eg. XXX-XX-6789).                                                                                                 | Will add '-' and mask the first 5 digits of a 9-digit number so the output matches the format XXX-XX-6789.                               | 42         |
+| SSN (unmasked)            | SSN with all 9 digits (eg. 123-45-6789).                                                                                                           | Will add '-' to a 9-digit number so the output matches the format 123-45-6789.                                                           | 43         |
+| Text                      | Allow any input.                                                                                                                                   | N/A                                                                                                                                      | N/A        |
+| Time HH:MM                | Military 24hr time in format HH:mm (eg. 22:30).                                                                                                    | N/A                                                                                                                                      | 26         |
+| Unit of Measurement       | ISO codes used for units of measure for intl. trade.                                                                                               | N/A                                                                                                                                      | 5          |
+| Unix Timestamp            | Number of seconds since epoch (Jan 1 1970).                                                                                                        | N/A                                                                                                                                      | 46         |
+| URL                       | Values must be valid urls.                                                                                                                         | N/A                                                                                                                                      | 8          |
+| US Phone Number (ext)     | US phone format with optional extension. The extension may be separated from the phone number with the following chars/strings: x, X, #, ext, etx. | Removes US country codes in the following formats: +1, 1-, 1 , 1.                                                                        | 44         |
+| US State or Territory     | US states or territories.                                                                                                                          | Transforms between two-digit codes and full state names.                                                                                 | 50         |
+| US Zip Code               | US Zip code for location columns. Both 5 and 9 digit codes are accepted.                                                                           | N/A                                                                                                                                      | 23         |
+| UUID                      | An id of the form 123e4567-e89b-12d3-a456-426655440000.                                                                                            | N/A                                                                                                                                      | 52         |
+
+### Dates
+
+The following table contains the date formats OneSchema can identify and transform into the desired format. 
+
+  
+| Date format       | Example           |
+| ----------------- | ----------------- |
+| MM-DD-YY          | 01-15-90          |
+| M-DD-YY           | 1-15-90           |
+| DD-MM-YY          | 15-01-90          |
+| DD-M-YY           | 15-1-90           |
+| MM/DD/YY          | 01/15/90          |
+| M/DD/YY           | 1/15/90           |
+| MM.DD.YY          | 01.15.90          |
+| M.DD.YY           | 1.15.90           |
+| MMM-DD-YY         | Jan-15-90         |
+| Month-DD-YY       | January-15-90     |
+| DD-MMM-YY         | 15-Jan-90         |
+| YYYY-MM-DD        | 1990-01-15        |
+| YYYY-M-DD         | 1990-1-15         |
+| MM-DD-YYYY        | 01-15-1990        |
+| M-DD-YYYY         | 1-15-1990         |
+| MM/DD/YYYY        | 01/15/1990        |
+| M/DD/YYYY         | 1/15/1990         |
+| DD/MM/YYYY        | 15/01/1990        |
+| DD/M/YYYY         | 15/1/1990         |
+| YYYY/MM/DD        | 1990/01/15        |
+| YYYY/M/DD         | 1990/1/15         |
+| DD.MM.YYYY        | 15.01.1990        |
+| DD.M.YYYY         | 15.1.1990         |
+| YYYY.MM.DD        | 1990.01.15        |
+| YYYY.M.DD         | 1990.1.15         |
+| Month DD, YYYY    | January 15, 1990  |
+| MMM. DD, YYYY     | Jan. 15, 1990     |
+| DD MMM. YYYY      | 15 Jan. 1990      |
+| DD. MMM. YYYY     | 15\. Jan. 1990    |
+| ddd, MMM DD, YYYY | Mon, Jan 15, 1990 |
+
+### Datetimes
+
+The following table contains the datetime formats OneSchema can identify and transform into the desired format.
+
+  
+| Datetime format                  | Example                          |
+| -------------------------------- | -------------------------------- |
+| Unix timestamp                   | 1670874565                       |
+| ddd MMM DD HH:mm:ss YYYY         | Wed Jan 15 00:34:60 1990         |
+| MM-DD-YY HH:mm                   | 01-15-90 10:10                   |
+| MM/DD/YY HH:mm                   | 01/15/90 10:10                   |
+| MM/DD/YYYY HH:mm                 | 01/15/1990 10:10                 |
+| YYYY/MM/DD HH:mm                 | 1990/01/15 10:10                 |
+| MM/DD/YYYY HH:mm                 | 01/15/1990 10:10                 |
+| MM-DD-YYYY HH:mm                 | 01-15-1990 10:10                 |
+| YYYY-MM-DD HH:mm                 | 1990-01-15 10:10                 |
+| MM/DD/YY HH:mm:ss xm             | 01/15/90 10:10:10 am             |
+| ISO 8601                         | 1990-01-15T00:34:60.026490+09:30 |
+| ISO 8601 without timezone offset | 1990-01-15T00:34:60.026490       |
+| YYYY-MM-DDTHH:mm+offset          | 1990-01-15T10:10+9:30            |
+| YYYY-MM-DDTHH:mm                 | 1990-01-15T10:10Z                |
+| MM/DD/YYYY HH:mm xm              | 01/15/1990 10:10 pm              |
+| DD.MM.YY HH:mm                   | 15.01.90 10:10                   |
+| DD.MM.YYYY HH:mm                 | 15.01.1990 10:10                 |
+| DD-MM-YY HH:mm                   | 15-01-90 10:10                   |
+| DD/MM/YY HH:mm                   | 15/01/90 10:10                   |
+| DD-MM-YYYY HH:mm                 | 15-01-1990 10:10                 |
+| DD-MM-YYYY HH:mm xm              | 15-01-1990 10:10 am              |

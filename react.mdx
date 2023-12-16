@@ -1,0 +1,264 @@
+---
+title: "React"
+---
+
+[![](https://img.shields.io/npm/v/@oneschema/react)](https://www.npmjs.com/package/@oneschema/react)
+
+## Getting Started
+
+The OneSchema React package contains a React component to help embed OneSchema into your application
+
+### Installation
+
+You can install this package with npm:
+
+Bash
+
+`npm i --save @oneschema/react
+`
+
+### Sample usage
+
+JavaScript
+
+`import React, { useState } from "react"
+import OneSchemaImporter from "@oneschema/react"
+
+function OneSchemaExample() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  const handleData = (data) => {
+    console.log(data)
+  }
+
+  return (
+    <div>
+      <button onClick={() => setIsOpen(true)}>Import</button>
+
+      <OneSchemaImporter
+        /* managing state from your application */
+        isOpen={isOpen}
+        onRequestClose={() => setIsOpen(false)}
+        /* required config values */
+        clientId={clientId}
+        userJwt={token}
+        templateKey={templateKey}
+        /* optional config values */
+        importConfig={{ type: "local", metadataOnly: false, }}
+        devMode={process.env.NODE_ENV !== "production"}
+        className="oneschema-importer"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          zIndex: 1000,
+        }}
+        /* handling results */
+        onSuccess={handleData}
+        onCancel={() => console.log("cancelled")}
+        onError={(error) => console.log(error)}
+      />
+    </div>
+  )
+}
+`
+
+### Advanced usage
+
+#### Changing iframe location
+
+By default, the iframe will append itself to `document.body`. If you would like the iframe to be included in the component tree, use the inline prop. If you need the iframe to be in a different location, use [portals](https://reactjs.org/docs/portals.html).
+
+#### Using a session token
+
+You can [start an embedding session via API](/docs/initialize-importer-through-api) or the [onLaunched callback](/docs/react#onlaunched) and then use in the session token with the React component
+
+JavaScript
+
+` <OneSchemaImporter
+  /* managing state from your application */
+  isOpen={isOpen}
+  onRequestClose={() => setIsOpen(false)}
+  /* required config values */
+  clientId={clientId}
+  sessionToken={token}
+  devMode={process.env.NODE_ENV !== "production"}
+  className="oneschema-importer"
+  style={{
+     position: "fixed",
+     top: 0,
+     left: 0,
+     width: "100vw",
+     height: "100vh",
+  }}
+  /* handling results */
+  onSuccess={handleData}
+  onCancel={() => console.log("cancelled")}
+  onError={(error) => console.log(error)}
+/>
+`
+
+## API Reference
+
+### Table of Contents
+
+* [OneSchemaImporter React Component](#oneschemaimporter-react-component)
+
+---
+
+## OneSchemaImporter React Component
+
+This component is the default export from the `@oneschema/react package`.
+
+You will need to manage state for whether the embed should be shown through `isOpen` and `onRequestClose`
+
+### isOpen
+
+| **Required** |                                                   |
+| ------------ | ------------------------------------------------- |
+| Type         | boolean                                           |
+| Description  | Whether the iframe for the embed should be opened |
+
+### onRequestClose
+
+| Optional    |                                                                                                                                                   |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Type        | Function (() => void)                                                                                                                             |
+| Description | This callback is called when the embed import is complete (regardless of success, error, or cancelled). This should set the isOpen prop to false. |
+
+### clientId
+
+| **Required** |                                                 |
+| ------------ | ----------------------------------------------- |
+| Type         | string                                          |
+| Description  | Importer client Id from the OneSchema dashboard |
+
+### userJwt
+
+| **Required** | Note: not required if using session token                                                                                                                     |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Type         | string                                                                                                                                                        |
+| Description  | The JWT to be used for authentication. See [generating a secure JSON Web token for a user](/docs/generating-jwts) for more information about setting up a JWT |
+
+### templateKey
+
+| **Required** | Note: not required if using session token                                                                                                                                  |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Type         | string                                                                                                                                                                     |
+| Description  | The key for the template that should be used in the import. See [Creating and Editing Templates](/docs/creating-and-editing-templates) for more information about template |
+
+### importConfig
+
+| Optional    |                                                                                                                                              |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Type        | Object ([ImportConfig](/docs/javascript#importconfig))                                                                                       |
+| Description | Configuration for how data will be imported out of OneSchema when the import is complete. If not specified, will be a full LocalImportConfig |
+
+### sessionToken
+
+| Optional    |                                                                                                    |
+| ----------- | -------------------------------------------------------------------------------------------------- |
+| Type        | string                                                                                             |
+| Description | The session token from [creating an embed session via API](/docs/initialize-importer-through-api). |
+
+### devMode
+
+| Optional    |                                                                                                                                                                                                |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Type        | string                                                                                                                                                                                         |
+| Description | Whether the importer should be in devMode. This will show more helpful information to developers, but should be turned off when you deploy. Defaults to process.env.NODE\_ENV !== 'production' |
+
+### customizationKey
+
+| Optional    |                                                                                                                                                                                                  |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Type        | string                                                                                                                                                                                           |
+| Description | Key for the customization that has been created in the dashboard to be used with this importer. See [Multiple Customizations](/docs/customizations#multiple-customizations) for more information |
+
+### customizationOverrides
+
+| Optional    |                                                                       |
+| ----------- | --------------------------------------------------------------------- |
+| Type        | OneSchemaCustomization (See [Customizations](/docs/customizations))   |
+| Description | Values that will override the saved customization from your dashboard |
+
+### templateOverrides
+
+| Optional    |                                                                                                  |
+| ----------- | ------------------------------------------------------------------------------------------------ |
+| Type        | OneSchemaTemplateOverrides (See [Templates](/docs/override-embed-behavior#template-overrides))   |
+| Description | Values that will override the saved template and template columns to be used with this importer. |
+
+### languageCode
+
+| Optional    |                                                                                                                                                                                                                                                           |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Type        | string                                                                                                                                                                                                                                                    |
+| Description | Optional language code (like 'en' or 'zh') to force importer language. By default, will use user's set language. Requires enterprise licensing[Supported languages documented here](/docs/translate-importer-into-different-language#supported-languages) |
+
+### className
+
+| Optional    |                                                            |
+| ----------- | ---------------------------------------------------------- |
+| Type        | string                                                     |
+| Description | The CSS class of the iframe. Defaults to: oneschema-iframe |
+
+### parentId
+
+| Optional    |                                                                                                   |
+| ----------- | ------------------------------------------------------------------------------------------------- |
+| Type        | string                                                                                            |
+| Description | HTML Id tag for an element the iframe should be appended to. By default, appends to document.body |
+
+## [](#section-)
+
+### style
+
+| Optional    |                                                 |
+| ----------- | ----------------------------------------------- |
+| Type        | React.CSSProperties                             |
+| Description | CSS styles that should be applied to the iframe |
+
+### inline
+
+| Optional    |                                                                                                                                   |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Type        | boolean                                                                                                                           |
+| Description | Whether the iframe should be rendered inside the component tree. By default, false and the iframe will be placed in document.body |
+
+### baseUrl
+
+| Optional    |                                                                                                        |
+| ----------- | ------------------------------------------------------------------------------------------------------ |
+| Type        | string                                                                                                 |
+| Description | If you are a customer with multi-region hosting, set this to <https://embed.\[region\].oneschema.co\>. |
+
+### onSuccess
+
+| Optional    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Type        | Function ((data) => void)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Description | This callback is called when the import is completed successfully. For "local" imports will send data in the format [documented here](/docs/importing-validated-data#sample-json-object). For "webhook" imports, it will send an object with eventId and responses:The eventId field will contain a string identifier that was included in the webhook requests. You can use this to associate the user’s session with the requests sent to your webhook. (You could also use the user JWT, which is also sent with the webhook requests, to do this.)The responses field returns the bodies of the responses sent by your webhook endpoint. It is entirely fine to return nothing at all — you can return whatever data you’d like here. It will be array of objects with a body field containing the response, and a sequenceNumber field that indicates which request returned that response. Once this data is sent to your app you can use it however you want to guide the rest of the user’s import process. |
+
+### onError
+
+| Optional    |                                                                                                                                     |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Type        | Function (([OneSchemaError](/docs/javascript#oneschemaerror)) => void) (version >= 0.5)Function ((message) => void) (version < 0.5) |
+| Description | This callback is called when an error occurs during the import.                                                                     |
+
+### onCancel
+
+| Optional    |                                                                          |
+| ----------- | ------------------------------------------------------------------------ |
+| Type        | Function (() => void)                                                    |
+| Description | This callback is called when the user cancels the import into OneSchema. |
+
+### onLaunched
+
+| Optional    |                                                                                                                                                                                                                                        |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Type        | Function ((data) => void)                                                                                                                                                                                                              |
+| Description | This callback is called when the modal is displayed. The data will include a sessionToken field which can be used to resume the importer session. See [Using a session token for more information](/docs/react#using-a-session-token). |

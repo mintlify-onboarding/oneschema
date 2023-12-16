@@ -1,0 +1,324 @@
+---
+title: "Importing Validated Data"
+description: "Getting clean data from OneSchema"
+---
+
+There are four methods for importing validated data once it has been processed by OneSchema. 
+
+**For files with fewer than 50k rows:**
+
+| Type                 | Use                                                                            | importConfig value                   |
+| -------------------- | ------------------------------------------------------------------------------ | ------------------------------------ |
+| Frontend passthrough | For importing data via your frontend code. Typically the easiest to implement. | `{ type: "local" }`                    |
+| Importer Webhook     | OneSchema sends batched data to your webhook endpoint.                         | `{ type: "webhook", key: webhookKey }` |
+
+  
+**For all file sizes:**
+
+| Type                      | Use                                                                                                                                                                   | importConfig value                                                                                                 |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| OneSchema API             | You request data from OneSchema's API. It can be a [paginated JSON](/reference/get-rows) or [S3 URL](/reference/export-csv-file).                                     | `{ type: "local", metadataOnly: true }**OR**{ type: "webhook", key: webhookKey }`, type "Metadata only" (set in GUI) |
+| File upload to signed URL | Generate your own signed URLs using AWS S3, Google Cloud Storage, Azure Blob Storage, or any other provider, and OneSchema will send files directly into your bucket. | `{ type: "file-upload", url: <YOUR\_URL> } `                                                                         |
+
+  
+## Frontend passthrough
+
+Frontend passthrough can be useful if you already have a process in place to import data received via your frontend. OneSchema will send the validated data as a parameter for the success handler of your implementation (for examples, see the [JS event](/docs/javascript#success-event) and [React onSuccess callback](/docs/javascript#success-event)).
+
+This method is not recommended for files exceeding 50k rows.
+
+Here is an example of the JSON data you would receive from OneSchema:
+
+```json json
+{
+    "embed_id": 23456,
+    "template_key": "contacts",
+    "workspace_id": 12345,
+    "workspace_metadata": {},
+    "sheet_id": 54321,
+    "sheet_metadata": {
+        "original_file_name": "contact_data.csv"
+    },
+    "columns": [
+        {
+            "sheet_column_name": "First Name",
+            "template_column_name": "First Name",
+            "template_column_key": "first_name"
+        },
+        {
+            "sheet_column_name": "Last Name",
+            "template_column_name": "Last Name",
+            "template_column_key": "last_name"
+        },
+        {
+            "sheet_column_name": "Email 1",
+            "template_column_name": "Email",
+            "template_column_key": "email"
+        },
+        {
+            "sheet_column_name": "Size",
+            "template_column_name": "Size",
+            "template_column_key": "size"
+        },
+        {
+            "sheet_column_name": "Avg Spend",
+            "template_column_name": "Average Spend",
+            "template_column_key": "avg_spend"
+        },
+        {
+            "sheet_column_name": "First Contact",
+            "template_column_name": "First Contacted",
+            "template_column_key": "first_contacted"
+        },
+        {
+            "sheet_column_name": "Primary Phone Number",
+            "template_column_name": "Phone",
+            "template_column_key": "phone"
+        },
+        {
+            "sheet_column_name": "Company",
+            "template_column_name": "Company",
+            "template_column_key": "company"
+        },
+        {
+            "sheet_column_name": "Status",
+            "template_column_name": "Status",
+            "template_column_key": "status"
+        },
+        {
+            "sheet_column_name": "Full Address",
+            "template_column_name": "Full Address",
+            "template_column_key": "full_address"
+        },
+        {
+            "sheet_column_name": "Lead Source",
+            "template_column_name": "Lead Source",
+            "template_column_key": "lead_source"
+        }
+    ],
+    "count": 12,
+    "records": [
+        {
+            "avg_spend": "2732.10",
+            "email": "[[email protected]](/cdn-cgi/l/email-protection)",
+            "phone": "531-683-0240",
+            "status": "In Contact",
+            "lead_source": "Webinar",
+            "last_name": "Goel",
+            "size": "5000-10000",
+            "full_address": "925 N Rossiter Blvd, Mount Dora, FL, 32757",
+            "first_name": "Aditi",
+            "company": "Box",
+            "first_contacted": "2020-02-20"
+        },
+        {
+            "full_address": "104 Curwen Cir, Philadelphia, PA, 19010",
+            "avg_spend": "0.00",
+            "phone": "531-370-8956",
+            "lead_source": "Webinar",
+            "last_name": "Quinn",
+            "first_contacted": "2021-02-21",
+            "email": "[[email protected]](/cdn-cgi/l/email-protection)",
+            "first_name": "Laura",
+            "company": "Airbnb",
+            "status": "Closed Won",
+            "size": "10-50"
+        },
+        {
+            "last_name": "Zuo",
+            "avg_spend": "7625.69",
+            "size": "10-50",
+            "phone": "805-709-3275",
+            "full_address": "26980 N Dark Sky Dr, Paulden, AZ, 86334",
+            "lead_source": "Webinar",
+            "first_contacted": "2021-03-08",
+            "status": "Unqualified",
+            "company": "Gigashots",
+            "first_name": "Nancy",
+            "email": "[[email protected]](/cdn-cgi/l/email-protection)"
+        },
+        {
+            "full_address": "2570 Apapane St, Lihue, NM, 96766",
+            "company": "Google",
+            "email": "[[email protected]](/cdn-cgi/l/email-protection)",
+            "first_name": "Tanay",
+            "lead_source": "Webinar",
+            "avg_spend": "0.00",
+            "phone": "805-585-0677",
+            "size": "5000-10000",
+            "status": "Trial Started",
+            "last_name": "Padhi",
+            "first_contacted": "2019-12-22"
+        },
+        {
+            "status": "In Contact",
+            "first_contacted": "2017-04-19",
+            "last_name": "Goodrick",
+            "lead_source": "Webinar",
+            "company": "Roblox",
+            "phone": "337-865-7061",
+            "first_name": "Lexie",
+            "email": "[[email protected]](/cdn-cgi/l/email-protection)",
+            "full_address": "1 Twin Brk, Flanders, NJ, 07836",
+            "avg_spend": "0.00",
+            "size": "5000-10000"
+        },
+        {
+            "status": "In Contact",
+            "company": "Monday.com",
+            "avg_spend": "0.00",
+            "phone": "337-701-6881",
+            "first_name": "Raquel",
+            "email": "[[email protected]](/cdn-cgi/l/email-protection)",
+            "first_contacted": "2020-10-20",
+            "last_name": "Martinez",
+            "size": "500-1000",
+            "full_address": "771 Southwood Blvd, Incline Village, NV, 89451",
+            "lead_source": "Webinar"
+        },
+        {
+            "avg_spend": "0.00",
+            "lead_source": "Webinar",
+            "full_address": "69 Oak St, Los Altos, CA, 94022",
+            "phone": "718-761-8824",
+            "first_name": "Ivanna",
+            "first_contacted": "2020-01-08",
+            "status": "In Contact",
+            "email": "[[email protected]](/cdn-cgi/l/email-protection)",
+            "size": "250-500",
+            "company": "Mixmax",
+            "last_name": "Scriver"
+        },
+        {
+            "phone": "531-370-8956",
+            "company": "User Leap",
+            "first_contacted": "2020-09-15",
+            "status": "In Contact",
+            "full_address": "1071 41st Ave #6300, Santa Cruz, CA",
+            "avg_spend": "4651.69",
+            "first_name": "Alex",
+            "size": "50-100",
+            "email": "[[email protected]](/cdn-cgi/l/email-protection)",
+            "last_name": "Borrett",
+            "lead_source": "Webinar"
+        },
+        {
+            "first_name": "Robert",
+            "status": "In Contact",
+            "size": "",
+            "first_contacted": "2020-07-04",
+            "full_address": "",
+            "company": "User Leap",
+            "last_name": "Carter",
+            "email": "[[email protected]](/cdn-cgi/l/email-protection)",
+            "phone": "805-292-6451",
+            "lead_source": "Webinar",
+            "avg_spend": "6611.09"
+        }
+    ],
+    "error_records": [
+        {
+            "data": {
+                "lead_source": "Webinar",
+                "size": "10-50",
+                "status": "Qualified Demo Held",
+                "company": "Airbnb",
+                "email": "",
+                "full_address": "3737 Cayuga St, Interlake, NY, 14847",
+                "last_name": "Herman",
+                "first_name": "Alexis",
+                "avg_spend": "0.00",
+                "first_contacted": "2018-10-05",
+                "phone": "805-292-6451"
+            },
+            "errors": {
+                "email": [
+                    1001
+                ]
+            }
+        },
+        {
+            "data": {
+                "full_address": "715 E 3rd Ave, Ellensburg, UT, 98926",
+                "size": "<10",
+                "first_contacted": "2015-10-08",
+                "last_name": "",
+                "phone": "201-759-7542",
+                "email": "rkeaysell",
+                "company": "DataDog",
+                "first_name": "Robert",
+                "avg_spend": "5349.20",
+                "status": "In Contact",
+                "lead_source": "Webinar"
+            },
+            "errors": {
+                "last_name": [
+                    1001
+                ],
+                "email": [
+                    13
+                ]
+            }
+        },
+        {
+            "data": {
+                "size": "10-50",
+                "company": "Mixmax",
+                "phone": "531-683-0240",
+                "avg_spend": "8162.40",
+                "last_name": "Brownsey",
+                "status": "In Contact",
+                "full_address": "44 Kaneohe Bay Dr, Kaneohe, HI, 96744",
+                "lead_source": "Webinar",
+                "email": "[[email protected]](/cdn-cgi/l/email-protection)",
+                "first_name": "Felix",
+                "first_contacted": ""
+            },
+            "errors": {
+                "first_contacted": [
+                    1001
+                ]
+            }
+        }
+    ]
+}
+```
+  
+## Importer Webhook
+
+Importing via webhook allows you to process a large number of rows through pagination. OneSchema will send requests to an endpoint you host with metadata and up to 1,000 rows of processed data at a time. The data will come over in a JSON array, with each object representing a row of data, and each row containing key value pairs. See the [schema of webhook payload metadata](/docs/importer-webhook#schema-of-webhook-payload-metadata) for more information about the format of the data. This method is not recommended for files exceeding 50k rows.
+
+To configure a webhook to be used with OneSchema go to the [webhooks tab on your developer dashboard](https://app.oneschema.co/developer/webhooks). Then follow the instructions found on our [Importer Webhooks](/docs/importer-webhook) documentation page. 
+
+  
+Detailed information can be found on the [Importer Webhook documentation page](/docs/importer-webhook). 
+
+  
+## OneSchema API
+
+You can receive metadata for querying the API via your frontend code or via webhook. Metadata will contain a `sheet_id` and `embed_id` which should be passed into the relevant API endpoint.
+
+| importConfig value                    | Description                                                               |
+| ------------------------------------- | ------------------------------------------------------------------------- |
+| `{ type: "local", metadataOnly: true }` | Receive metadata object via your frontend code.                           |
+| `{ type: "webhook", key: webhookKey }`  | Receive metadata JSON via a webhook endpoint specified by the webhookKey. |
+
+### Paginated JSON
+
+This method works best for very large files or if you'd like to request the data in batches of a certain size.
+
+The [Get Rows endpoint](/reference/get-imported-rows-for-embed) allows data to be requested with a _starting row index_ and _row count_.
+
+  
+### File Download From URL
+
+This method is for fetching entire CSV, Excel, or JSON files via OneSchema’s download links. Another good option for very large files.
+
+The [Export a CSV endpoint](/reference/export-csv-file) (also available in [Excel](/reference/export-excel-file) and [JSON](/reference/export-a-json-file) flavors) provides a URL to OneSchema's AWS S3 bucket.
+
+  
+## File upload to signed URL
+
+You can generate your own signed URLs using AWS S3, Google Cloud Storage, Azure Blob Storage, or any other provider, and OneSchema will send files directly into your bucket. For more information, see [File Upload URL](/docs/file-upload-url).
+
+  

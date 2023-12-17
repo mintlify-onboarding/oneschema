@@ -1,41 +1,41 @@
 ---
-title: "Step 1: Build a template"
-description: "Import rules can be managed via the OneSchema Developer Dashboard by non-technical team members"
+title: 'Step 1: Build a Template'
+description: 'Import rules can be managed via the OneSchema Developer Dashboard by non-technical team members'
 ---
 
-At OneSchema, we refer to a set of import rules for a given sheet as a _Template_. 
+At OneSchema, we refer to a set of import rules for a given sheet as a _Template_.
 
 ## Creating a template
 
-To get to your [templates](/docs/templates), go to your OneSchema portal and select _Templates_ from the menu bar at the top of the page. An example _Contacts_ template is provided. 
+To get to your [templates](/docs/templates), go to your OneSchema portal and select _Templates_ from the menu bar at the top of the page. An example _Contacts_ template is provided.
 
 The steps for creating a template are as follows:
 
-* Create a new template and add the relevant columns + their rules
-* Rename the template and template key
-* [Push changes](/v2/docs/creating-and-editing-templates) to the template
+- Create a new template and add the relevant columns + their rules
+- Rename the template and template key
+- [Push changes](/v2/docs/creating-and-editing-templates) to the template
 
 ### Manually
 
 In the upper right hand corner of the templates page, select _New template_, then click _Build a template from scratch_ in the window that pops up. A blank template will be created and columns can be added one by one.
 
-![Locate this button on your OneSchema dashboard](/images/397d3a5-Screenshot_2023-09-14_at_11.29.09_AM.png "New template.png")
+![Locate this button on your OneSchema dashboard](/images/397d3a5-Screenshot_2023-09-14_at_11.29.09_AM.png 'New template.png')
 
 Locate this button on your OneSchema dashboard
 
 ### From a clean spreadsheet
 
-In the upper right hand corner of the templates page, select _New template_, then upload a pre-cleaned spreadsheet file in the window that pops up. The clean spreadsheet file should contain headers (must be first row) and clean sample data in the format your application can accept. OneSchema will intelligently scan the data in order to automatically determine the headers and datatypes. 
+In the upper right hand corner of the templates page, select _New template_, then upload a pre-cleaned spreadsheet file in the window that pops up. The clean spreadsheet file should contain headers (must be first row) and clean sample data in the format your application can accept. OneSchema will intelligently scan the data in order to automatically determine the headers and datatypes.
 
 ## Editing a template
 
-To edit a template, click on _Details_ of the template you want to edit. Prior to changes taking effect, they must be [pushed](/v2/docs/creating-and-editing-templates). 
+To edit a template, click on _Details_ of the template you want to edit. Prior to changes taking effect, they must be [pushed](/v2/docs/creating-and-editing-templates).
 
 ### Adding a column
 
 To add a new column, click _Add a column_ in the top right of a specific template's page or at the bottom of the existing columns.
 
-![Locate this button on your OneSchema dashboard](/images/c240121-Screenshot_2023-09-14_at_11.29.55_AM.png "add col.png")
+![Locate this button on your OneSchema dashboard](/images/c240121-Screenshot_2023-09-14_at_11.29.55_AM.png 'add col.png')
 
 Locate this button on your OneSchema dashboard
 
@@ -43,50 +43,52 @@ Locate this button on your OneSchema dashboard
 
 To edit a column that already exists in a template, simply click on the pencil icon associated with that column. A column can be removed by clicking on the trash can on that column's row.
 
-![](/images/eccc572-Screenshot_2023-10-09_at_11.21.47_AM.png "edit col.png") 
+<Frame>
+  ![](/images/eccc572-Screenshot_2023-10-09_at_11.21.47_AM.png 'edit col.png')
+</Frame>
 
 ### Column options
 
-| Option                   | Description                                                                                                                                          |    |    |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- | -- | -- |
-| Column template name\*   | The name given to the column during data validation and import.                                                                                      |    |    |
-| Column key\*             | A unique identifier used to identify webhook columns instead of the column name.                                                                     |    |    |
-| Column description       | A description of the column visible to the user.                                                                                                     |    |    |
-| Required                 | No cells in a column may be empty and the column must be uploaded and mapped by the end user. One or both can be selected.                           |    |    |
-| Unique values            | Data in each cell of the column must be unique. No value can be used more than once.                                                                 |    |    |
-| Data validation type     | The no-code data validation applied to the column.                                                                                                   |    |    |
-| Letter case              | Select if text in the column should be in _Proper Case_, _lower case_, or _UPPER CASE_. OneSchema will auto-transform between the different casings. |    |    |
-| Character limit          | Lower and upper bounds for the number of characters in a cell of the column.                                                                         |    |    |
-| Multiple value delimiter | Allows multiple entries in a single cell, separated by the delimiter defined here. i.e. ;, ,, or \`                                                  | \` | \` |
-| \* = Required            |                                                                                                                                                      |    |    |
+| Option                   | Description                                                                                                                                          |     |     |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- | --- | --- |
+| Column template name\*   | The name given to the column during data validation and import.                                                                                      |     |     |
+| Column key\*             | A unique identifier used to identify webhook columns instead of the column name.                                                                     |     |     |
+| Column description       | A description of the column visible to the user.                                                                                                     |     |     |
+| Required                 | No cells in a column may be empty and the column must be uploaded and mapped by the end user. One or both can be selected.                           |     |     |
+| Unique values            | Data in each cell of the column must be unique. No value can be used more than once.                                                                 |     |     |
+| Data validation type     | The no-code data validation applied to the column.                                                                                                   |     |     |
+| Letter case              | Select if text in the column should be in _Proper Case_, _lower case_, or _UPPER CASE_. OneSchema will auto-transform between the different casings. |     |     |
+| Character limit          | Lower and upper bounds for the number of characters in a cell of the column.                                                                         |     |     |
+| Multiple value delimiter | Allows multiple entries in a single cell, separated by the delimiter defined here. i.e. ;, ,, or \`                                                  | \`  | \`  |
+| \* = Required            |                                                                                                                                                      |     |     |
 
-![](/images/9c6822d-Screenshot_2023-10-09_at_11.24.06_AM.png) 
+![](/images/9c6822d-Screenshot_2023-10-09_at_11.24.06_AM.png)
 
 ### Changing a template's name
 
-To change the name and/or the column key of a template, click on its name in the upper left hand corner when on the specific template's page. The changes will autosave when you click away. 
+To change the name and/or the column key of a template, click on its name in the upper left hand corner when on the specific template's page. The changes will autosave when you click away.
 
-![](/images/13633aa-Screenshot_2023-10-09_at_11.48.02_AM.png) 
+![](/images/13633aa-Screenshot_2023-10-09_at_11.48.02_AM.png)
 
 ### Pushing changes
 
-After changes are made to a template, they must be pushed to the appropriate environment(s). The blue _Push Changes_ button can be found in the upper right hand corner of the page. Select the appropriate enviroment(s) and click push. If _Production_ is selected, an additional confirmation prompt will appear. 
+After changes are made to a template, they must be pushed to the appropriate environment(s). The blue _Push Changes_ button can be found in the upper right hand corner of the page. Select the appropriate enviroment(s) and click push. If _Production_ is selected, an additional confirmation prompt will appear.
 
-A changelog for pushes is provided to the right of the _Push changes_ button (icon: clock inside a counterclockwise arrow). 
+A changelog for pushes is provided to the right of the _Push changes_ button (icon: clock inside a counterclockwise arrow).
 
-![](/images/9a24da7-Screenshot_2023-10-09_at_11.42.01_AM.png) ![](/images/746761a-Screenshot_2023-10-09_at_11.42.23_AM.png) 
+![](/images/9a24da7-Screenshot_2023-10-09_at_11.42.01_AM.png) ![](/images/746761a-Screenshot_2023-10-09_at_11.42.23_AM.png)
 
 ### Row Constraints
 
-Settings for _Row constraints_ can be found in the upper right corner of a template's page, just to the left of the _Add a column_ button. A row constraint is a conditional check of one column's value based on the value contained in another. Each row is checked individually. For a given row, the check follows the form of: If column A contains X, then column B must contain Y, else surface an error. 
+Settings for _Row constraints_ can be found in the upper right corner of a template's page, just to the left of the _Add a column_ button. A row constraint is a conditional check of one column's value based on the value contained in another. Each row is checked individually. For a given row, the check follows the form of: If column A contains X, then column B must contain Y, else surface an error.
 
-![](/images/e58b7e2-row_const.png "row const.png")
+![](/images/e58b7e2-row_const.png 'row const.png')
 
 ### Validation webhooks
 
 A validation webhook is a way to validate data against a third-party data source, your database, or perform complex formulaic checks. OneSchema will pass the requested data via webhook to an endpoint you host, and simply expects to receive a list of errors and warnings in response. Please see our [validation webhook API documentation](/docs/validation-webhook).
 
-A validation webhook is created for a specific template and associated to a template by clicking _Add validation hook_ on the left-hand sidebar. 
+A validation webhook is created for a specific template and associated to a template by clicking _Add validation hook_ on the left-hand sidebar.
 
 | Field                  | Description                                                                                    |
 | ---------------------- | ---------------------------------------------------------------------------------------------- |
@@ -96,7 +98,7 @@ A validation webhook is created for a specific template and associated to a temp
 | Secret key             | Optional, a way to ensure the call is authorized.                                              |
 | \* = Required          |                                                                                                |
 
-![](/images/b7baf5c-valid_hooks.png "valid hooks.png")
+![](/images/b7baf5c-valid_hooks.png 'valid hooks.png')
 
 ### Exporting and Importing templates
 
